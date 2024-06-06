@@ -1,35 +1,34 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 	"log"
-	"net/http"
 )
 
-// Define the port the server will listen on
 const port = ":8080"
 
-// Home handler function
-func Home(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Homepage")
-}
+const (
+	host         = "localhost"
+	databasePort = 5432
+	databaseName = "Order_week1"
+	username     = "postgres"
+	password     = "Ming1234"
+)
 
-// Info handler function
-func Info(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Info page")
-}
+var db *sql.DB
 
 func main() {
-	// Log that the server is starting
-	log.Println("Starting the HTTP server on port", port)
-
-	// Register handler functions for specific routes
-	http.HandleFunc("/", Home)
-	http.HandleFunc("/info", Info)
-
-	// Start the server
-	err := http.ListenAndServe(port, nil)
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, databasePort, username, password, databaseName)
+	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		log.Fatal("Error starting server:", err)
+		log.Fatal(err)
 	}
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+	print("database connected")
+	//defer db.Close()
 }
