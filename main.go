@@ -1,27 +1,14 @@
 package main
 
 import (
-	"database/sql"
-	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Database"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/FiberServer"
 	_ "github.com/lib/pq"
-	"log"
-	"os"
+	//"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	//"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
 )
 
-var db *sql.DB
-
 func main() {
-	err := godotenv.Load(".env.example")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-	port := os.Getenv("PORT")
-
-	app := fiber.New()
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
-
-	_ = app.Listen(port)
+	Database.InitDatabase()
+	FiberServer.ConnectFiberServer()
 }

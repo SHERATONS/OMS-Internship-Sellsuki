@@ -1,7 +1,6 @@
 package Model
 
 type Stock struct {
-	S_ID       int64 `gorm:"primary_key;AUTO_INCREMENT"`
-	P_ID       int64 `gorm:"primary_key;AUTO_INCREMENT"`
-	S_Quantity int64
+	SID       string `gorm:"primary_key;AUTO_INCREMENT"`
+	SQuantity int64
 }
