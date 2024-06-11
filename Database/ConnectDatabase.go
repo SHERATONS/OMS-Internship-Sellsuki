@@ -2,6 +2,7 @@ package Database
 
 import (
 	"fmt"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -31,7 +32,11 @@ func InitDatabase() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, dbPort, username, password, databaseName)
 	db, err = gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
+		panic("failed to connect database")
 	}
 	fmt.Println("Connected to database")
+	db.AutoMigrate(&Model.Product{})
+	db.AutoMigrate(&Model.Address{})
+	db.AutoMigrate(&Model.Stock{})
+	db.AutoMigrate(&Model.Order{})
 }
