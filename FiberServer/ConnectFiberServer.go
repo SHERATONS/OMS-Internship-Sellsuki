@@ -15,9 +15,12 @@ func ConnectFiberServer() {
 	port := os.Getenv("PORT")
 
 	app := fiber.New()
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("test")
+
+	app.Get("/products", func(c *fiber.Ctx) error {
+		return c.JSON(GetProducts)
 	})
 
-	_ = app.Listen(port)
+	if err := app.Listen(port); err != nil {
+		log.Fatal(err)
+	}
 }
