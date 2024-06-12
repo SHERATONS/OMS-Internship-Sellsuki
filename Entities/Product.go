@@ -3,10 +3,14 @@ package Entities
 import "time"
 
 type Product struct {
-	ProductID         string
-	ProductName       string
-	ProductPrice      int64
-	ProductDesc       string
-	ProductCreateTime time.Time
-	ProductUpdateTime time.Time
+	PID      string
+	PName    string
+	PPrice   float64
+	PDesc    string
+	PCreated time.Time
+	PUpdated time.Time
+}
+
+func (product *Product) TableName() string {
+	return "products"
 }

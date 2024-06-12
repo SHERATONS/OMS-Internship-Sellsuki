@@ -13,7 +13,7 @@ import (
 
 var db *gorm.DB
 
-func InitDatabase() {
+func InitDatabase() *gorm.DB {
 	err := godotenv.Load(".env.example")
 	if err != nil {
 		log.Fatal("Error loading .env file", err)
@@ -39,4 +39,5 @@ func InitDatabase() {
 	db.AutoMigrate(&Model.Address{})
 	db.AutoMigrate(&Model.Stock{})
 	db.AutoMigrate(&Model.Order{})
+	return db
 }

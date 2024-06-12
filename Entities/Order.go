@@ -3,9 +3,13 @@ package Entities
 import "time"
 
 type Order struct {
-	OrderTranID     string
-	OrderCreateTime time.Time
-	OrderStatus     string
-	OrderTotalPrice float64
-	OrderDelivery   bool
+	OTranID     string
+	OCreated    time.Time
+	OStatus     string
+	OTotalPrice float64
+	ODelivery   bool
+}
+
+func (order *Order) Tablename() string {
+	return "orders"
 }

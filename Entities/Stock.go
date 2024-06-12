@@ -3,7 +3,11 @@ package Entities
 import "time"
 
 type Stock struct {
-	StockID         string
-	Quantity        int64
-	StockUpdateTime time.Time
+	SID       string
+	SQuantity int64
+	SUpdated  time.Time
+}
+
+func (stock *Stock) Tablename() string {
+	return "stocks"
 }
