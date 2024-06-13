@@ -12,7 +12,8 @@ import (
 )
 
 type ProductHandler struct {
-	UseCases UseCases.IProductCase
+	UseCases      UseCases.IProductCase
+	UseCasesStock UseCases.IStockCase
 }
 
 func (s *ProductHandler) GetProductById(c *fiber.Ctx) error {
@@ -184,6 +185,20 @@ func (s *ProductHandler) DeleteProductById(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to Delete Product")
 	}
+
+	_, err = s.UseCasesStock.GetStockByID(productId)
+	if err == nil {
+		err = s.UseCasesStock.DeleteStock(productId)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString("Failed to Delete Stock")
+		} else {
+			return c.Status(fiber.StatusOK).JSON(fiber.Map{
+				"message":   "Product successfully deleted, Stock successfully deleted",
+				"productId": product.PID,
+			})
+		}
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":   "Product successfully deleted",
 		"productId": product.PID,
@@ -198,6 +213,9 @@ func (s *ProductHandler) GetAllProducts(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"products": products})
 }
 
-func NewProductHandler(useCases UseCases.IProductCase) ProductHandlerI {
-	return &ProductHandler{UseCases: useCases}
+func NewProductHandler(useCases UseCases.IProductCase, useCasesStock UseCases.IStockCase) ProductHandlerI {
+	return &ProductHandler{
+		UseCases:      useCases,
+		UseCasesStock: useCasesStock,
+	}
 }

@@ -4,7 +4,7 @@ import "time"
 
 type Stock struct {
 	SID       string
-	SQuantity int8
+	SQuantity float64
 	SUpdated  time.Time
 }
 

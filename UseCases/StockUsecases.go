@@ -21,15 +21,13 @@ func (s StockUseCases) CreateStock(Stock Entities.Stock) (Entities.Stock, error)
 	return s.Repo.CreateStock(Stock)
 }
 
-//func (s StockUseCases) UpdateStock(Stock Entities.Stock) (Entities.Stock, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s StockUseCases) DeleteStock(stockId string) (Entities.Stock, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
+func (s StockUseCases) UpdateStock(Stock Entities.Stock, stockId string) (Entities.Stock, error) {
+	return s.Repo.UpdateStock(Stock, stockId)
+}
+
+func (s StockUseCases) DeleteStock(stockId string) error {
+	return s.Repo.DeleteStock(stockId)
+}
 
 func NewStockUseCases(Repo Repository.IStockRepo) IStockCase {
 	return StockUseCases{Repo: Repo}

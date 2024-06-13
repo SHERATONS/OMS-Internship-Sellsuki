@@ -6,8 +6,8 @@ import (
 )
 
 func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStocks UseCases.IStockCase) {
-	ProductHandler := Handlers.NewProductHandler(uProduct)
-	StockHandler := Handlers.NewStockHandler(uStocks)
+	ProductHandler := Handlers.NewProductHandler(uProduct, uStocks)
+	StockHandler := Handlers.NewStockHandler(uStocks, uProduct)
 
 	s.app.Get("/products/", ProductHandler.GetAllProducts)
 	s.app.Get("/product/:id", ProductHandler.GetProductById)
@@ -18,6 +18,6 @@ func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStocks UseCase
 	s.app.Get("/stocks/", StockHandler.GetAllStock)
 	s.app.Get("/stock/:id", StockHandler.GetStockByID)
 	s.app.Post("/createStock/", StockHandler.CreateStock)
-	//s.app.Put("/updateStock':id")
-	//s.app.Delete("/deleteStock/:id")
+	s.app.Put("/updateStock/:id", StockHandler.UpdateStock)
+	s.app.Delete("/deleteStock/:id", StockHandler.DeleteStock)
 }

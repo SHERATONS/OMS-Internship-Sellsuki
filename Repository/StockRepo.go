@@ -26,15 +26,15 @@ func (s StockRepo) CreateStock(Stock Entities.Stock) (Entities.Stock, error) {
 	return Stock, err
 }
 
-//func (s StockRepo) UpdateStock(Stock Entities.Stock) (Entities.Stock, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (s StockRepo) DeleteStock(stockId string) (Entities.Stock, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
+func (s StockRepo) UpdateStock(Stock Entities.Stock, stockId string) (Entities.Stock, error) {
+	err := s.Db.Where("s_id = ?", stockId).Save(&Stock).Error
+	return Stock, err
+}
+
+func (s StockRepo) DeleteStock(stockId string) error {
+	err := s.Db.Where("s_id = ?", stockId).Delete(&Entities.Stock{}).Error
+	return err
+}
 
 func NewStockRepo(db *gorm.DB) IStockRepo {
 	return &StockRepo{Db: db}
