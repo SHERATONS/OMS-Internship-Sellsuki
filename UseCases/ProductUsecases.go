@@ -6,7 +6,7 @@ import (
 )
 
 type ProductUseCases struct {
-	Repo Repository.IRepository
+	Repo Repository.IProductRepo
 }
 
 func (p ProductUseCases) UpdateProduct(product Entities.Product, productID string) (Entities.Product, error) {
@@ -18,10 +18,6 @@ func (p ProductUseCases) GetProductById(productId string) (Entities.Product, err
 }
 
 func (p ProductUseCases) CreateProduct(product Entities.Product) (Entities.Product, error) {
-	//createProduct, err := p.Repo.GetProductByID(product.PID)
-	//if err == nil && createProduct.PID != "" {
-	//	return Entities.Product{}, errors.New("product ID already exists")
-	//}
 	return p.Repo.CreateProduct(product)
 }
 
@@ -33,6 +29,6 @@ func (p ProductUseCases) GetAllProducts() ([]Entities.Product, error) {
 	return p.Repo.GetAllProducts()
 }
 
-func NewProductUseCases(Repo Repository.IRepository) IProductCase {
+func NewProductUseCases(Repo Repository.IProductRepo) IProductCase {
 	return ProductUseCases{Repo: Repo}
 }

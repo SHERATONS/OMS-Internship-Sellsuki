@@ -36,6 +36,6 @@ func (p *ProductRepo) GetAllProducts() ([]Entities.Product, error) {
 	return products, err
 }
 
-func NewProductRepo(db *gorm.DB) IRepository {
+func NewProductRepo(db *gorm.DB) IProductRepo {
 	return &ProductRepo{Db: db}
 }
