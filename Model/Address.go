@@ -1,8 +1,10 @@
 package Model
 
+import "time"
+
 type Address struct {
-	AID     string  `gorm:"primary_key"`
-	City    string  `gorm:"NOT NULL"`
-	Country string  `gorm:"NOT NULL"`
-	APrice  float64 `gorm:"NOT NULL"`
+	City     string  `gorm:"primary_key"`
+	Country  string  `gorm:"NOT NULL"`
+	APrice   float64 `gorm:"NOT NULL"`
+	AUpdated time.Time
 }

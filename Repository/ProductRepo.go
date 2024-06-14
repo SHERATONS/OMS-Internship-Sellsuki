@@ -32,7 +32,7 @@ func (p *ProductRepo) CreateProduct(product Entities.Product) (Entities.Product,
 
 func (p *ProductRepo) GetAllProducts() ([]Entities.Product, error) {
 	var products []Entities.Product
-	err := p.Db.Order("p_id").Find(&products).Error
+	err := p.Db.Order("CAST(p_id AS INTEGER)").Find(&products).Error
 	return products, err
 }
 

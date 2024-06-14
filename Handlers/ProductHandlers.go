@@ -7,7 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"reflect"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -37,14 +36,18 @@ func (s *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	var validationError []string
 
 	if pId, ok := rawData["PID"]; ok {
-		CheckIdString := pId.(string)
 		if reflect.TypeOf(pId).Kind() != reflect.String {
-			validationError = append(validationError, "Product ID Must Be a String")
-		} else if CheckIdInt, _ := strconv.Atoi(CheckIdString); CheckIdInt <= 0 {
-			validationError = append(validationError, "Product ID Must Greater than 0")
+			validationError = append(validationError, "Product ID Must Be String")
+		} else {
+			CheckIdString := pId.(string)
+			if CheckIdInt, err := strconv.Atoi(CheckIdString); err != nil {
+				validationError = append(validationError, "Product ID Must Be a Number")
+			} else if CheckIdInt <= 0 {
+				validationError = append(validationError, "Product ID Must Be Greater than 0")
+			}
 		}
 	} else {
-		validationError = append(validationError, "Product ID is Required and Must Be a String")
+		validationError = append(validationError, "Product ID is Required and Must Be String")
 	}
 
 	if pName, ok := rawData["PName"]; ok {
@@ -56,11 +59,13 @@ func (s *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	}
 
 	if pPrice, ok := rawData["PPrice"]; ok {
-		CheckPriceFloat := pPrice.(float64)
 		if reflect.TypeOf(pPrice).Kind() != reflect.Float64 {
 			validationError = append(validationError, "Product Price Must Be Float")
-		} else if CheckPriceFloat <= 0 {
-			validationError = append(validationError, "Product Price Must Be Greater than 0")
+		} else {
+			CheckPriceFloat := pPrice.(float64)
+			if CheckPriceFloat <= 0 {
+				validationError = append(validationError, "Product Price Must Be Greater than 0")
+			}
 		}
 	} else {
 		validationError = append(validationError, "Product Price is Required and Must Be Float")
@@ -75,7 +80,9 @@ func (s *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	}
 
 	if len(validationError) > 0 {
-		return c.Status(fiber.StatusBadRequest).SendString(strings.Join(validationError, ", "))
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": validationError,
+		})
 	}
 
 	var createProduct Entities.Product
@@ -106,11 +113,15 @@ func (s *ProductHandler) UpdateProductById(c *fiber.Ctx) error {
 	var validationError []string
 
 	if pId, ok := rawData["PID"]; ok {
-		CheckIdString := pId.(string)
 		if reflect.TypeOf(pId).Kind() != reflect.String {
 			validationError = append(validationError, "Product ID Must Be String")
-		} else if CheckIdInt, _ := strconv.Atoi(CheckIdString); CheckIdInt <= 0 {
-			validationError = append(validationError, "Product ID Must Be Greater than 0")
+		} else {
+			CheckIdString := pId.(string)
+			if CheckIdInt, err := strconv.Atoi(CheckIdString); err != nil {
+				validationError = append(validationError, "Product ID Must Be a Number")
+			} else if CheckIdInt <= 0 {
+				validationError = append(validationError, "Product ID Must Be Greater than 0")
+			}
 		}
 	} else {
 		validationError = append(validationError, "Product ID is Required and Must Be String")
@@ -125,10 +136,9 @@ func (s *ProductHandler) UpdateProductById(c *fiber.Ctx) error {
 	}
 
 	if pPrice, ok := rawData["PPrice"]; ok {
-		CheckPriceFloat := pPrice.(float64)
 		if reflect.TypeOf(pPrice).Kind() != reflect.Float64 {
 			validationError = append(validationError, "Product Price Must Be Float")
-		} else if CheckPriceFloat <= 0 {
+		} else if CheckPriceFloat := pPrice.(float64); CheckPriceFloat <= 0 {
 			validationError = append(validationError, "Product Price Must Be Greater than 0")
 		}
 	} else {
@@ -144,7 +154,9 @@ func (s *ProductHandler) UpdateProductById(c *fiber.Ctx) error {
 	}
 
 	if len(validationError) > 0 {
-		return c.Status(fiber.StatusBadRequest).SendString(strings.Join(validationError, ", "))
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": validationError,
+		})
 	}
 	var updateProduct Entities.Product
 	data, err := json.Marshal(rawData)

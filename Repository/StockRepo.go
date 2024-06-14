@@ -11,7 +11,7 @@ type StockRepo struct {
 
 func (s *StockRepo) GetAllStocks() ([]Entities.Stock, error) {
 	var stocks []Entities.Stock
-	err := s.Db.Order("s_id").Find(&stocks).Error
+	err := s.Db.Order("CAST(s_id AS INTEGER)").Find(&stocks).Error
 	return stocks, err
 }
 

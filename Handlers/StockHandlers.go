@@ -7,7 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"reflect"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -41,15 +40,19 @@ func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
 	var validationError []string
 
 	if sId, ok := rawData["SID"]; ok {
-		CheckIdString := sId.(string)
 		if reflect.TypeOf(sId).Kind() != reflect.String {
 			validationError = append(validationError, "Stock ID Must Be a String")
-		} else if CheckIdInt, _ := strconv.Atoi(CheckIdString); CheckIdInt <= 0 {
-			validationError = append(validationError, "Stock ID Must Greater than 0")
 		} else {
-			_, err := s.UseCasesProduct.GetProductById(CheckIdString)
-			if err != nil {
-				validationError = append(validationError, "Stock ID Did not Exists in Product ID")
+			CheckIdString := sId.(string)
+			if CheckIdInt, err := strconv.Atoi(CheckIdString); err != nil {
+				validationError = append(validationError, "Stock ID Must a Number")
+			} else if CheckIdInt <= 0 {
+				validationError = append(validationError, "Stock ID Must Greater than 0")
+			} else {
+				_, err := s.UseCasesProduct.GetProductById(CheckIdString)
+				if err != nil {
+					validationError = append(validationError, "Stock ID Did not Exists in Product ID")
+				}
 			}
 		}
 	} else {
@@ -68,7 +71,9 @@ func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
 	}
 
 	if len(validationError) > 0 {
-		return c.Status(fiber.StatusBadRequest).SendString(strings.Join(validationError, ", "))
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": validationError,
+		})
 	}
 
 	var updateStock Entities.Stock
@@ -106,15 +111,19 @@ func (s *StockHandler) CreateStock(c *fiber.Ctx) error {
 	var validationError []string
 
 	if sId, ok := rawData["SID"]; ok {
-		CheckIdString := sId.(string)
 		if reflect.TypeOf(sId).Kind() != reflect.String {
 			validationError = append(validationError, "Stock ID Must Be a String")
-		} else if CheckIdInt, _ := strconv.Atoi(CheckIdString); CheckIdInt <= 0 {
-			validationError = append(validationError, "Stock ID Must Be Greater than 0")
 		} else {
-			_, err := s.UseCasesProduct.GetProductById(CheckIdString)
-			if err != nil {
-				validationError = append(validationError, "Stock ID Did not Exists in Product ID")
+			CheckIdString := sId.(string)
+			if CheckIdInt, err := strconv.Atoi(CheckIdString); err != nil {
+				validationError = append(validationError, "Stock ID Must a Number")
+			} else if CheckIdInt <= 0 {
+				validationError = append(validationError, "Stock ID Must Greater than 0")
+			} else {
+				_, err := s.UseCasesProduct.GetProductById(CheckIdString)
+				if err != nil {
+					validationError = append(validationError, "Stock ID Did not Exists in Product ID")
+				}
 			}
 		}
 	} else {
@@ -133,7 +142,9 @@ func (s *StockHandler) CreateStock(c *fiber.Ctx) error {
 	}
 
 	if len(validationError) > 0 {
-		return c.Status(fiber.StatusBadRequest).SendString(strings.Join(validationError, ", "))
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": validationError,
+		})
 	}
 
 	var createStock Entities.Stock

@@ -5,9 +5,10 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
 )
 
-func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStocks UseCases.IStockCase) {
+func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStocks UseCases.IStockCase, uAddress UseCases.IAddressCase) {
 	ProductHandler := Handlers.NewProductHandler(uProduct, uStocks)
 	StockHandler := Handlers.NewStockHandler(uStocks, uProduct)
+	AddressHandler := Handlers.NewAddressHandler(uAddress)
 
 	s.app.Get("/products/", ProductHandler.GetAllProducts)
 	s.app.Get("/product/:id", ProductHandler.GetProductById)
@@ -20,4 +21,9 @@ func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStocks UseCase
 	s.app.Post("/createStock/", StockHandler.CreateStock)
 	s.app.Put("/updateStock/:id", StockHandler.UpdateStock)
 	s.app.Delete("/deleteStock/:id", StockHandler.DeleteStock)
+
+	s.app.Get("/address/:city", AddressHandler.GetAddressByCity)
+	s.app.Post("createAddress/", AddressHandler.CreateAddress)
+	//s.app.Put("updateAddress/:city")
+	//s.app.Delete("deleteAddress/:city")
 }

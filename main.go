@@ -28,7 +28,11 @@ func main() {
 	StockRP := Repository.NewStockRepo(db)
 	StockUS := UseCases.NewStockUseCases(StockRP)
 
+	// init address repo, use cases
+	AddressRP := Repository.NewAddressRepo(db)
+	AddressUs := UseCases.NewAddressUseCase(AddressRP)
+
 	s := Server.NewFiberServer()
-	s.SetupRoute(ProductUS, StockUS)
+	s.SetupRoute(ProductUS, StockUS, AddressUs)
 	s.Start(port)
 }
