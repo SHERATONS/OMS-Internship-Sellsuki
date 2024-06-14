@@ -20,15 +20,15 @@ func (a AddressRepo) CreateAddress(address Entities.Address) (Entities.Address, 
 	return address, err
 }
 
-//func (a AddressRepo) UpdateAddress(address Entities.Address, city string) (Entities.Address, error) {
-//	//TODO implement me
-//	panic("implement me")
-//}
-//
-//func (a AddressRepo) DeleteAddress(city string) error {
-//	//TODO implement me
-//	panic("implement me")
-//}
+func (a AddressRepo) UpdateAddress(address Entities.Address, city string) (Entities.Address, error) {
+	err := a.Db.Where("city = ?", city).Save(&address).Error
+	return address, err
+}
+
+func (a AddressRepo) DeleteAddress(city string) error {
+	err := a.Db.Where("city = ?", city).Delete(&Entities.Address{}).Error
+	return err
+}
 
 func NewAddressRepo(db *gorm.DB) IAddressRepo {
 	return &AddressRepo{Db: db}

@@ -24,6 +24,6 @@ func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStocks UseCase
 
 	s.app.Get("/address/:city", AddressHandler.GetAddressByCity)
 	s.app.Post("createAddress/", AddressHandler.CreateAddress)
-	//s.app.Put("updateAddress/:city")
-	//s.app.Delete("deleteAddress/:city")
+	s.app.Put("updateAddress/:city", AddressHandler.UpdateAddress)
+	s.app.Delete("deleteAddress/:city", AddressHandler.DeleteAddress)
 }
