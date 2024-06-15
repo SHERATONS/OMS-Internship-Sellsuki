@@ -14,7 +14,7 @@ type AddressHandler struct {
 	UseCases UseCases.IAddressCase
 }
 
-func (a AddressHandler) GetAddressByCity(c *fiber.Ctx) error {
+func (a *AddressHandler) GetAddressByCity(c *fiber.Ctx) error {
 	city := c.Params("city")
 	if city == "" {
 		return c.Status(fiber.StatusBadRequest).SendString("City is Required")
@@ -32,7 +32,7 @@ func (a AddressHandler) GetAddressByCity(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"address": address})
 }
 
-func (a AddressHandler) CreateAddress(c *fiber.Ctx) error {
+func (a *AddressHandler) CreateAddress(c *fiber.Ctx) error {
 	var rawData map[string]interface{}
 	if err := c.BodyParser(&rawData); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid Request Body")
@@ -90,7 +90,7 @@ func (a AddressHandler) CreateAddress(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"address": address})
 }
 
-func (a AddressHandler) UpdateAddress(c *fiber.Ctx) error {
+func (a *AddressHandler) UpdateAddress(c *fiber.Ctx) error {
 	var rawData map[string]interface{}
 	if err := c.BodyParser(&rawData); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid Request Body")
@@ -167,7 +167,7 @@ func (a AddressHandler) UpdateAddress(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"address": updateAddress})
 }
 
-func (a AddressHandler) DeleteAddress(c *fiber.Ctx) error {
+func (a *AddressHandler) DeleteAddress(c *fiber.Ctx) error {
 	city := c.Params("city")
 	if city == "" {
 		return c.Status(fiber.StatusBadRequest).SendString("City is Required")
@@ -194,5 +194,5 @@ func (a AddressHandler) DeleteAddress(c *fiber.Ctx) error {
 }
 
 func NewAddressHandler(useCases UseCases.IAddressCase) AddressHandlerI {
-	return AddressHandler{UseCases: useCases}
+	return &AddressHandler{UseCases: useCases}
 }
