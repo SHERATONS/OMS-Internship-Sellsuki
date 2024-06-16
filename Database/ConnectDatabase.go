@@ -39,5 +39,6 @@ func InitDatabase() *gorm.DB {
 	db.AutoMigrate(&Model.Address{})
 	db.AutoMigrate(&Model.Stock{})
 	db.AutoMigrate(&Model.OrderCalculate{})
+	db.AutoMigrate(&Model.Order{})
 	return db
 }
