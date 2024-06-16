@@ -32,7 +32,11 @@ func main() {
 	AddressRP := Repository.NewAddressRepo(db)
 	AddressUs := UseCases.NewAddressUseCase(AddressRP)
 
+	// init order calculation repo, use cases
+	OrderCalculateRP := Repository.NewOrderCalculateRepo(db)
+	OrderCalculateUs := UseCases.NewOrderCalculateUseCases(OrderCalculateRP)
+
 	s := Server.NewFiberServer()
-	s.SetupRoute(ProductUS, StockUS, AddressUs)
+	s.SetupRoute(ProductUS, StockUS, AddressUs, OrderCalculateUs)
 	s.Start(port)
 }

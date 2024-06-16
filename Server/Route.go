@@ -28,9 +28,9 @@ func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStocks UseCase
 	s.app.Put("updateAddress/:city", AddressHandler.UpdateAddress)
 	s.app.Delete("deleteAddress/:city", AddressHandler.DeleteAddress)
 
-	s.app.Get("/OrderCalculates/")
-	s.app.Get("/OrderCalculate/:tid")
-	s.app.Post("/createTransactionId/", OrderCalculateHandler.CreateTransactionID)
-	s.app.Delete("/deleteTransactionId/:tid")
+	s.app.Get("/OrderCalculates/", OrderCalculateHandler.GetAllOrder)
+	s.app.Get("/OrderCalculate/:tid", OrderCalculateHandler.GetOrderByTransactionID)
+	s.app.Post("/order/calculate/", OrderCalculateHandler.CreateTransactionID)
+	s.app.Delete("/deleteTransactionId/:tid", OrderCalculateHandler.DeleteTransactionID)
 
 }
