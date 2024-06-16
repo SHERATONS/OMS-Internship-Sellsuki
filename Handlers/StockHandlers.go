@@ -63,7 +63,7 @@ func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
 		CheckQuantityInt := sQuantity.(float64)
 		if reflect.TypeOf(sQuantity).Kind() != reflect.Float64 {
 			validationError = append(validationError, "Stock Quantity Must Be a Integer")
-		} else if CheckQuantityInt <= 0 {
+		} else if CheckQuantityInt < 0 {
 			validationError = append(validationError, "Stock Quantity Must Be Greater than 0")
 		}
 	} else {

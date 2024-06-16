@@ -9,6 +9,10 @@ type OrderUseCases struct {
 	Repo Repository.IOrderRepo
 }
 
+func (o OrderUseCases) GetOrderById(orderId int64) (Entities.Order, error) {
+	return o.Repo.GetOrderById(orderId)
+}
+
 func (o OrderUseCases) CreateOrder(order Entities.Order) (Entities.Order, error) {
 	return o.Repo.CreateOrder(order)
 }

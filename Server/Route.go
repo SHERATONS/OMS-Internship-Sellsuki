@@ -10,7 +10,7 @@ func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStocks UseCase
 	StockHandler := Handlers.NewStockHandler(uStocks, uProduct)
 	AddressHandler := Handlers.NewAddressHandler(uAddress)
 	OrderCalculateHandler := Handlers.NewOrderCalculateHandler(uOrderCalculate, uProduct, uAddress)
-	OrderHandler := Handlers.NewOrderHandler(uOrder, uStocks)
+	OrderHandler := Handlers.NewOrderHandler(uOrder, uStocks, uOrderCalculate)
 
 	s.app.Get("/products/", ProductHandler.GetAllProducts)
 	s.app.Get("/product/:id", ProductHandler.GetProductById)
@@ -34,6 +34,7 @@ func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStocks UseCase
 	s.app.Post("/order/calculate/", OrderCalculateHandler.CreateTransactionID)
 	s.app.Delete("/deleteTransactionId/:tid", OrderCalculateHandler.DeleteTransactionID)
 
+	s.app.Get("/order/:oid", OrderHandler.GetOrderById)
 	s.app.Post("/order/", OrderHandler.CreateOrder)
 	s.app.Patch("/order/status/:oid", OrderHandler.ChangeOrderStatus)
 }

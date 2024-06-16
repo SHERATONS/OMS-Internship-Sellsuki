@@ -1,6 +1,7 @@
 package Repository
 
 import (
+	"errors"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
 	"gorm.io/gorm"
 )
@@ -27,6 +28,9 @@ func (s StockRepo) CreateStock(Stock Entities.Stock) (Entities.Stock, error) {
 }
 
 func (s StockRepo) UpdateStock(Stock Entities.Stock, stockId string) (Entities.Stock, error) {
+	if Stock.SQuantity < 0 {
+		return Stock, errors.New("stock quantity is negative")
+	}
 	err := s.Db.Where("s_id = ?", stockId).Save(&Stock).Error
 	return Stock, err
 }

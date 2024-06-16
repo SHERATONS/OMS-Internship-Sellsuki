@@ -3,11 +3,11 @@ package Entities
 import "time"
 
 type Order struct {
-	OCId         int64
-	OCTranID     string
-	OCPrice      float64
+	OID          int
+	OTranID      string
+	OPrice       float64
 	ODestination string
-	OCStatus     string
+	OStatus      string
 	OPaid        bool
 	OCreated     time.Time
 }

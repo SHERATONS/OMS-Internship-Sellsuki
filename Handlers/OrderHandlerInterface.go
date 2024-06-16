@@ -7,4 +7,5 @@ import (
 type OrderHandlerI interface {
 	CreateOrder(c *fiber.Ctx) error
 	ChangeOrderStatus(c *fiber.Ctx) error
+	GetOrderById(c *fiber.Ctx) error
 }
