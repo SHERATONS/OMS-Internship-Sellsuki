@@ -2,12 +2,13 @@ package Handlers
 
 import (
 	"encoding/json"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
-	"github.com/gofiber/fiber/v2"
 	"reflect"
 	"strconv"
 	"time"
+
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
+	"github.com/gofiber/fiber/v2"
 )
 
 type ProductHandler struct {
@@ -15,7 +16,7 @@ type ProductHandler struct {
 	UseCasesStock UseCases.IStockCase
 }
 
-func (s *ProductHandler) GetProductById(c *fiber.Ctx) error {
+func (s *ProductHandler) GetProductByID(c *fiber.Ctx) error {
 	productId := c.Params("id")
 	if productId == "" {
 		return c.Status(fiber.StatusBadRequest).SendString("Product Id is Required")

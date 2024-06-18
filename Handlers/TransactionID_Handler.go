@@ -2,17 +2,18 @@ package Handlers
 
 import (
 	"encoding/json"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
-	"github.com/gofiber/fiber/v2"
 	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
+	"github.com/gofiber/fiber/v2"
 )
 
 type OrderCalculateHandler struct {
-	UseCases        UseCases.IOrderCalculateCase
+	UseCases        UseCases.ITransactionIDCase
 	UseCasesProduct UseCases.IProductCase
 	UseCasesAddress UseCases.IAddressCase
 }
@@ -127,7 +128,7 @@ func (o *OrderCalculateHandler) CreateTransactionID(c *fiber.Ctx) error {
 
 	totalPrice += address.APrice
 
-	var createTransactionID Entities.OrderCalculate
+	var createTransactionID Entities.TransactionID
 	data, err := json.Marshal(rawData)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -173,7 +174,7 @@ func (o *OrderCalculateHandler) DeleteTransactionID(c *fiber.Ctx) error {
 	})
 }
 
-func NewOrderCalculateHandler(useCases UseCases.IOrderCalculateCase, useCasesProduct UseCases.IProductCase, useCasesAddress UseCases.IAddressCase) OrderCalculateHandlerI {
+func NewTransactionIDHandler(useCases UseCases.ITransactionIDCase, useCasesProduct UseCases.IProductCase, useCasesAddress UseCases.IAddressCase) OrderCalculateHandlerI {
 	return &OrderCalculateHandler{
 		UseCases:        useCases,
 		UseCasesProduct: useCasesProduct,

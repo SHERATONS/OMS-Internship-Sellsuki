@@ -2,7 +2,9 @@ package Repository
 
 import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
+	"log"
 )
 
 type ProductRepo struct {
@@ -37,5 +39,9 @@ func (p *ProductRepo) GetAllProducts() ([]Entities.Product, error) {
 }
 
 func NewProductRepo(db *gorm.DB) IProductRepo {
+	err := db.AutoMigrate(&Model.Product{})
+	if err != nil {
+		log.Fatalf("Failed to auto migrate Product: %v", err)
+	}
 	return &ProductRepo{Db: db}
 }

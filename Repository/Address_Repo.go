@@ -1,7 +1,10 @@
 package Repository
 
 import (
+	"log"
+
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
 )
 
@@ -31,5 +34,9 @@ func (a AddressRepo) DeleteAddress(city string) error {
 }
 
 func NewAddressRepo(db *gorm.DB) IAddressRepo {
+	err := db.AutoMigrate(&Model.Address{})
+	if err != nil {
+		log.Fatalf("Failed to auto migrate Address: %v", err)
+	}
 	return &AddressRepo{Db: db}
 }

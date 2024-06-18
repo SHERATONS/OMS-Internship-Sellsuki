@@ -5,36 +5,41 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
 )
 
-func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStocks UseCases.IStockCase, uAddress UseCases.IAddressCase, uOrderCalculate UseCases.IOrderCalculateCase, uOrder UseCases.IOrderCase) {
-	ProductHandler := Handlers.NewProductHandler(uProduct, uStocks)
-	StockHandler := Handlers.NewStockHandler(uStocks, uProduct)
+func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStock UseCases.IStockCase, uAddress UseCases.IAddressCase, uTransactionID UseCases.ITransactionIDCase, uOrder UseCases.IOrderCase) {
+	ProductHandler := Handlers.NewProductHandler(uProduct, uStock)
+	StockHandler := Handlers.NewStockHandler(uStock, uProduct)
 	AddressHandler := Handlers.NewAddressHandler(uAddress)
-	OrderCalculateHandler := Handlers.NewOrderCalculateHandler(uOrderCalculate, uProduct, uAddress)
-	OrderHandler := Handlers.NewOrderHandler(uOrder, uStocks, uOrderCalculate)
+	TransactionIDHandler := Handlers.NewTransactionIDHandler(uTransactionID, uProduct, uAddress)
+	OrderHandler := Handlers.NewOrderHandler(uOrder, uStock, uTransactionID)
 
+	// Product Route
 	s.app.Get("/products/", ProductHandler.GetAllProducts)
-	s.app.Get("/product/:id", ProductHandler.GetProductById)
-	s.app.Post("/createProduct/", ProductHandler.CreateProduct)
-	s.app.Put("/updateProduct/:id", ProductHandler.UpdateProductById)
-	s.app.Delete("/deleteProduct/:id", ProductHandler.DeleteProductById)
+	s.app.Get("/product/:id", ProductHandler.GetProductByID)
+	s.app.Post("/product/create/", ProductHandler.CreateProduct)
+	s.app.Put("/product/update/:id", ProductHandler.UpdateProductById)
+	s.app.Delete("/product/delete/:id", ProductHandler.DeleteProductById)
 
+	// Stock Route
 	s.app.Get("/stocks/", StockHandler.GetAllStock)
 	s.app.Get("/stock/:id", StockHandler.GetStockByID)
-	s.app.Post("/createStock/", StockHandler.CreateStock)
-	s.app.Put("/updateStock/:id", StockHandler.UpdateStock)
-	s.app.Delete("/deleteStock/:id", StockHandler.DeleteStock)
+	s.app.Post("/stock/create/", StockHandler.CreateStock)
+	s.app.Put("/stock/update/:id", StockHandler.UpdateStock)
+	s.app.Delete("/stock/delete/:id", StockHandler.DeleteStock)
 
+	// Address Route
 	s.app.Get("/address/:city", AddressHandler.GetAddressByCity)
-	s.app.Post("createAddress/", AddressHandler.CreateAddress)
-	s.app.Put("updateAddress/:city", AddressHandler.UpdateAddress)
-	s.app.Delete("deleteAddress/:city", AddressHandler.DeleteAddress)
+	s.app.Post("/address/create/", AddressHandler.CreateAddress)
+	s.app.Put("/address/update/:city", AddressHandler.UpdateAddress)
+	s.app.Delete("address/delete/:city", AddressHandler.DeleteAddress)
 
-	s.app.Get("/OrderCalculates/", OrderCalculateHandler.GetAllOrder)
-	s.app.Get("/OrderCalculate/:tid", OrderCalculateHandler.GetOrderByTransactionID)
-	s.app.Post("/order/calculate/", OrderCalculateHandler.CreateTransactionID)
-	s.app.Delete("/deleteTransactionId/:tid", OrderCalculateHandler.DeleteTransactionID)
+	// TransactionID Route
+	s.app.Get("/transactionIDs/", TransactionIDHandler.GetAllOrder)
+	s.app.Get("/transactionID/:tid", TransactionIDHandler.GetOrderByTransactionID)
+	s.app.Post("/order/calculate/", TransactionIDHandler.CreateTransactionID)
+	s.app.Delete("/transactionID/delete/:tid", TransactionIDHandler.DeleteTransactionID)
 
+	// Order Route
 	s.app.Get("/order/:oid", OrderHandler.GetOrderById)
-	s.app.Post("/order/", OrderHandler.CreateOrder)
+	s.app.Post("/order/create/", OrderHandler.CreateOrder)
 	s.app.Patch("/order/status/:oid", OrderHandler.ChangeOrderStatus)
 }

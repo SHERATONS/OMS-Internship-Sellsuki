@@ -2,19 +2,20 @@ package Handlers
 
 import (
 	"encoding/json"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
-	"github.com/gofiber/fiber/v2"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
+	"github.com/gofiber/fiber/v2"
 )
 
 type OrderHandler struct {
 	UseCases               UseCases.IOrderCase
 	UseCasesStock          UseCases.IStockCase
-	UseCasesOrderCalculate UseCases.IOrderCalculateCase
+	UseCasesOrderCalculate UseCases.ITransactionIDCase
 }
 
 func (o *OrderHandler) GetOrderById(c *fiber.Ctx) error {
@@ -233,7 +234,7 @@ func (o *OrderHandler) ChangeOrderStatus(c *fiber.Ctx) error {
 	}
 }
 
-func NewOrderHandler(useCases UseCases.IOrderCase, useCasesStock UseCases.IStockCase, useCasesOrderCalculate UseCases.IOrderCalculateCase) OrderHandlerI {
+func NewOrderHandler(useCases UseCases.IOrderCase, useCasesStock UseCases.IStockCase, useCasesOrderCalculate UseCases.ITransactionIDCase) OrderHandlerI {
 	return &OrderHandler{
 		UseCases:               useCases,
 		UseCasesStock:          useCasesStock,

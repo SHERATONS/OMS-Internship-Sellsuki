@@ -3,7 +3,9 @@ package Repository
 import (
 	"errors"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
+	"log"
 )
 
 type StockRepo struct {
@@ -41,5 +43,9 @@ func (s StockRepo) DeleteStock(stockId string) error {
 }
 
 func NewStockRepo(db *gorm.DB) IStockRepo {
+	err := db.AutoMigrate(&Model.Stock{})
+	if err != nil {
+		log.Fatalf("Failed to auto migrate Stock: %v", err)
+	}
 	return &StockRepo{Db: db}
 }

@@ -10,7 +10,7 @@ type OrderUseCases struct {
 }
 
 func (o OrderUseCases) GetOrderById(orderId int64) (Entities.Order, error) {
-	return o.Repo.GetOrderById(orderId)
+	return o.Repo.GetOrderByID(orderId)
 }
 
 func (o OrderUseCases) CreateOrder(order Entities.Order) (Entities.Order, error) {

@@ -2,13 +2,13 @@ package Database
 
 import (
 	"fmt"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
-	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 var db *gorm.DB
@@ -35,10 +35,5 @@ func InitDatabase() *gorm.DB {
 		panic("failed to connect database")
 	}
 	fmt.Println("Connected to database")
-	db.AutoMigrate(&Model.Product{})
-	db.AutoMigrate(&Model.Address{})
-	db.AutoMigrate(&Model.Stock{})
-	db.AutoMigrate(&Model.OrderCalculate{})
-	db.AutoMigrate(&Model.Order{})
 	return db
 }

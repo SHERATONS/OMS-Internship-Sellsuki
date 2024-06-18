@@ -2,14 +2,16 @@ package Repository
 
 import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
+	"log"
 )
 
 type OrderRepo struct {
 	Db *gorm.DB
 }
 
-func (o *OrderRepo) GetOrderById(orderId int64) (Entities.Order, error) {
+func (o *OrderRepo) GetOrderByID(orderId int64) (Entities.Order, error) {
 	var order Entities.Order
 	err := o.Db.Where("o_id = ?", orderId).First(&order).Error
 	return order, err
@@ -39,5 +41,9 @@ func (o *OrderRepo) ChangeOrderStatus(order Entities.Order, oid int64) (Entities
 }
 
 func NewOrderRepo(db *gorm.DB) IOrderRepo {
+	err := db.AutoMigrate(&Model.Order{})
+	if err != nil {
+		log.Fatalf("Failed to auto migrate Order: %v", err)
+	}
 	return &OrderRepo{Db: db}
 }

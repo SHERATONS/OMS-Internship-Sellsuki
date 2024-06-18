@@ -9,15 +9,15 @@ type OrderCalculateUseCases struct {
 	Repo Repository.IOrderCalculateRepo
 }
 
-func (o OrderCalculateUseCases) GetAllOrders() ([]Entities.OrderCalculate, error) {
-	return o.Repo.GetAllOrders()
+func (o OrderCalculateUseCases) GetAllOrders() ([]Entities.TransactionID, error) {
+	return o.Repo.GetAllTransactionIDs()
 }
 
-func (o OrderCalculateUseCases) GetOrderByTransactionID(transactionID string) (Entities.OrderCalculate, error) {
+func (o OrderCalculateUseCases) GetOrderByTransactionID(transactionID string) (Entities.TransactionID, error) {
 	return o.Repo.GetOrderByTransactionID(transactionID)
 }
 
-func (o OrderCalculateUseCases) CreateTransactionID(orderCalculate Entities.OrderCalculate) (Entities.OrderCalculate, error) {
+func (o OrderCalculateUseCases) CreateTransactionID(orderCalculate Entities.TransactionID) (Entities.TransactionID, error) {
 	return o.Repo.CreateTransactionID(orderCalculate)
 }
 
@@ -25,6 +25,6 @@ func (o OrderCalculateUseCases) DeleteTransactionID(transactionID string) error 
 	return o.Repo.DeleteTransactionID(transactionID)
 }
 
-func NewOrderCalculateUseCases(repo Repository.IOrderCalculateRepo) IOrderCalculateCase {
+func NewOrderCalculateUseCases(repo Repository.IOrderCalculateRepo) ITransactionIDCase {
 	return OrderCalculateUseCases{Repo: repo}
 }
