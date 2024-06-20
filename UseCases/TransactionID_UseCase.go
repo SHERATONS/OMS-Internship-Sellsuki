@@ -5,26 +5,26 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository"
 )
 
-type OrderCalculateUseCases struct {
-	Repo Repository.IOrderCalculateRepo
+type TransactionIDUseCase struct {
+	Repo Repository.ITransactionIDRepo
 }
 
-func (o OrderCalculateUseCases) GetAllOrders() ([]Entities.TransactionID, error) {
+func (o TransactionIDUseCase) GetAllTransactionIDs() ([]Entities.TransactionID, error) {
 	return o.Repo.GetAllTransactionIDs()
 }
 
-func (o OrderCalculateUseCases) GetOrderByTransactionID(transactionID string) (Entities.TransactionID, error) {
+func (o TransactionIDUseCase) GetOrderByTransactionID(transactionID string) (Entities.TransactionID, error) {
 	return o.Repo.GetOrderByTransactionID(transactionID)
 }
 
-func (o OrderCalculateUseCases) CreateTransactionID(orderCalculate Entities.TransactionID) (Entities.TransactionID, error) {
-	return o.Repo.CreateTransactionID(orderCalculate)
+func (o TransactionIDUseCase) CreateTransactionID(transactionInfo Entities.TransactionID) (Entities.TransactionID, error) {
+	return o.Repo.CreateTransactionID(transactionInfo)
 }
 
-func (o OrderCalculateUseCases) DeleteTransactionID(transactionID string) error {
+func (o TransactionIDUseCase) DeleteTransactionID(transactionID string) error {
 	return o.Repo.DeleteTransactionID(transactionID)
 }
 
-func NewOrderCalculateUseCases(repo Repository.IOrderCalculateRepo) ITransactionIDCase {
-	return OrderCalculateUseCases{Repo: repo}
+func NewTransactionIDUseCase(repo Repository.ITransactionIDRepo) ITransactionIDUseCase {
+	return TransactionIDUseCase{Repo: repo}
 }

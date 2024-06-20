@@ -5,30 +5,30 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository"
 )
 
-type StockUseCases struct {
+type StockUseCase struct {
 	Repo Repository.IStockRepo
 }
 
-func (s StockUseCases) GetAllStocks() ([]Entities.Stock, error) {
+func (s StockUseCase) GetAllStocks() ([]Entities.Stock, error) {
 	return s.Repo.GetAllStocks()
 }
 
-func (s StockUseCases) GetStockByID(stockId string) (Entities.Stock, error) {
-	return s.Repo.GetStockByID(stockId)
+func (s StockUseCase) GetStockByID(stockID string) (Entities.Stock, error) {
+	return s.Repo.GetStockByID(stockID)
 }
 
-func (s StockUseCases) CreateStock(Stock Entities.Stock) (Entities.Stock, error) {
+func (s StockUseCase) CreateStock(Stock Entities.Stock) (Entities.Stock, error) {
 	return s.Repo.CreateStock(Stock)
 }
 
-func (s StockUseCases) UpdateStock(Stock Entities.Stock, stockId string) (Entities.Stock, error) {
-	return s.Repo.UpdateStock(Stock, stockId)
+func (s StockUseCase) UpdateStock(Stock Entities.Stock, stockID string) (Entities.Stock, error) {
+	return s.Repo.UpdateStock(Stock, stockID)
 }
 
-func (s StockUseCases) DeleteStock(stockId string) error {
-	return s.Repo.DeleteStock(stockId)
+func (s StockUseCase) DeleteStock(stockID string) error {
+	return s.Repo.DeleteStock(stockID)
 }
 
-func NewStockUseCases(Repo Repository.IStockRepo) IStockCase {
-	return StockUseCases{Repo: Repo}
+func NewStockUseCase(Repo Repository.IStockRepo) IStockUseCase {
+	return StockUseCase{Repo: Repo}
 }

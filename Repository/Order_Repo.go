@@ -11,18 +11,18 @@ type OrderRepo struct {
 	Db *gorm.DB
 }
 
-func (o *OrderRepo) GetOrderByID(orderId int64) (Entities.Order, error) {
+func (o *OrderRepo) GetOrderByID(orderId string) (Entities.Order, error) {
 	var order Entities.Order
 	err := o.Db.Where("o_id = ?", orderId).First(&order).Error
 	return order, err
 }
 
 func (o *OrderRepo) CreateOrder(order Entities.Order) (Entities.Order, error) {
-	err := o.Db.Omit("o_id").Create(&order).Error
+	err := o.Db.Create(&order).Error
 	return order, err
 }
 
-func (o *OrderRepo) ChangeOrderStatus(order Entities.Order, oid int64) (Entities.Order, error) {
+func (o *OrderRepo) ChangeOrderStatus(order Entities.Order, oid string) (Entities.Order, error) {
 	var existingOrder Entities.Order
 	err := o.Db.First(&existingOrder, "o_id = ?", oid).Error
 	if err != nil {

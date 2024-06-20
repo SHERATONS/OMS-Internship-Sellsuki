@@ -25,6 +25,6 @@ func (a AddressUseCase) DeleteAddress(city string) error {
 	return a.Repo.DeleteAddress(city)
 }
 
-func NewAddressUseCase(repo Repository.IAddressRepo) IAddressCase {
+func NewAddressUseCase(repo Repository.IAddressRepo) IAddressUseCase {
 	return &AddressUseCase{Repo: repo}
 }

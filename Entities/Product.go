@@ -10,7 +10,3 @@ type Product struct {
 	PCreated time.Time
 	PUpdated time.Time
 }
-
-func (product *Product) TableName() string {
-	return "products"
-}

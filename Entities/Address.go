@@ -8,7 +8,3 @@ type Address struct {
 	APrice   float64
 	AUpdated time.Time
 }
-
-func (address *Address) Tablename() string {
-	return "addresses"
-}

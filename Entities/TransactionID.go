@@ -7,14 +7,10 @@ import (
 )
 
 type TransactionID struct {
-	OTranID      string
-	OTotalPrice  float64
-	ODestination string
-	OProduct     string
-}
-
-func (order *TransactionID) Tablename() string {
-	return "ordercalculates"
+	TID          string
+	TPrice       float64
+	TDestination string
+	TProductList string
 }
 
 func (order *TransactionID) GenerateTransactionID(orderPrice float64) string {

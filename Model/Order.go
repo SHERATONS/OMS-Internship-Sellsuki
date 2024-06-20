@@ -1,9 +1,12 @@
 package Model
 
-import "time"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type Order struct {
-	OID          int       `gorm:"primary_key"`
+	OID          uuid.UUID `gorm:"primary_key"`
 	OTranID      string    `gorm:"not null"`
 	OPrice       float64   `gorm:"not null"`
 	ODestination string    `gorm:"not null"`

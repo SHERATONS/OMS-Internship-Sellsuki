@@ -2,7 +2,7 @@ package UseCases
 
 import "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
 
-type IProductCase interface {
+type IProductUseCase interface {
 	GetAllProducts() ([]Entities.Product, error)
 	GetProductById(productId string) (Entities.Product, error)
 	CreateProduct(product Entities.Product) (Entities.Product, error)

@@ -7,7 +7,3 @@ type Stock struct {
 	SQuantity float64
 	SUpdated  time.Time
 }
-
-func (stock *Stock) Tablename() string {
-	return "stocks"
-}

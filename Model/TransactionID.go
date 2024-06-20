@@ -1,8 +1,8 @@
 package Model
 
 type TransactionID struct {
-	OTranID      string  `gorm:"primary_key"`
-	OTotalPrice  float64 `gorm:"NOT NULL"`
-	ODestination string  `gorm:"NOT NULL"`
-	OProduct     string  `gorm:"NOT NULL"`
+	TID      			string  `gorm:"primary_key"`
+	TPrice  			float64 `gorm:"NOT NULL"`
+	TDestination 		string  `gorm:"NOT NULL"`
+	TProductList     	string  `gorm:"NOT NULL"`
 }

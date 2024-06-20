@@ -5,22 +5,22 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository"
 )
 
-type OrderUseCases struct {
+type OrderUseCase struct {
 	Repo Repository.IOrderRepo
 }
 
-func (o OrderUseCases) GetOrderById(orderId int64) (Entities.Order, error) {
-	return o.Repo.GetOrderByID(orderId)
+func (o OrderUseCase) GetOrderById(orderID string) (Entities.Order, error) {
+	return o.Repo.GetOrderByID(orderID)
 }
 
-func (o OrderUseCases) CreateOrder(order Entities.Order) (Entities.Order, error) {
+func (o OrderUseCase) CreateOrder(order Entities.Order) (Entities.Order, error) {
 	return o.Repo.CreateOrder(order)
 }
 
-func (o OrderUseCases) ChangeOrderStatus(order Entities.Order, oid int64) (Entities.Order, error) {
-	return o.Repo.ChangeOrderStatus(order, oid)
+func (o OrderUseCase) ChangeOrderStatus(order Entities.Order, orderID string) (Entities.Order, error) {
+	return o.Repo.ChangeOrderStatus(order, orderID)
 }
 
-func NewOrderUseCases(Repo Repository.IOrderRepo) IOrderCase {
-	return &OrderUseCases{Repo: Repo}
+func NewOrderUseCase(Repo Repository.IOrderRepo) IOrderUseCase {
+	return &OrderUseCase{Repo: Repo}
 }

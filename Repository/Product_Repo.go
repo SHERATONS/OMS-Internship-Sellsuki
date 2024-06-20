@@ -11,9 +11,9 @@ type ProductRepo struct {
 	Db *gorm.DB
 }
 
-func (p *ProductRepo) GetProductByID(productId string) (Entities.Product, error) {
+func (p *ProductRepo) GetProductByID(productID string) (Entities.Product, error) {
 	var product Entities.Product
-	err := p.Db.Where("p_id = ?", productId).First(&product).Error
+	err := p.Db.Where("p_id = ?", productID).First(&product).Error
 	return product, err
 }
 
@@ -22,8 +22,8 @@ func (p *ProductRepo) UpdateProduct(product Entities.Product, productId string) 
 	return product, err
 }
 
-func (p *ProductRepo) DeleteProduct(productId string) error {
-	err := p.Db.Where("p_id = ?", productId).Delete(&Entities.Product{}).Error
+func (p *ProductRepo) DeleteProduct(productID string) error {
+	err := p.Db.Where("p_id = ?", productID).Delete(&Entities.Product{}).Error
 	return err
 }
 

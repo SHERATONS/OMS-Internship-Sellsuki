@@ -2,29 +2,33 @@ package Handlers
 
 import (
 	"encoding/json"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
-	"github.com/gofiber/fiber/v2"
 	"reflect"
 	"strconv"
 	"time"
+
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
+	"github.com/gofiber/fiber/v2"
 )
 
 type StockHandler struct {
-	UseCases        UseCases.IStockCase
-	UseCasesProduct UseCases.IProductCase
+	UseCase        UseCases.IStockUseCase
+	UseCaseProduct UseCases.IProductUseCase
 }
 
 func (s *StockHandler) DeleteStock(c *fiber.Ctx) error {
 	var stockId = c.Params("id")
-	stock, err := s.UseCases.GetStockByID(stockId)
+
+	stock, err := s.UseCase.GetStockByID(stockId)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Invalid Stock ID")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Stock ID Not Found"})
 	}
-	err = s.UseCases.DeleteStock(stockId)
+
+	err = s.UseCase.DeleteStock(stockId)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Failed to Delete Stock")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to Delete Stock"})
 	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":   "Stock successfully deleted",
 		"productId": stock.SID,
@@ -34,7 +38,7 @@ func (s *StockHandler) DeleteStock(c *fiber.Ctx) error {
 func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
 	var rawData map[string]interface{}
 	if err := c.BodyParser(&rawData); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid Request Body")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Request Body"})
 	}
 
 	var validationError []string
@@ -49,7 +53,7 @@ func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
 			} else if CheckIdInt <= 0 {
 				validationError = append(validationError, "Stock ID Must Greater than 0")
 			} else {
-				_, err := s.UseCasesProduct.GetProductById(CheckIdString)
+				_, err := s.UseCaseProduct.GetProductById(CheckIdString)
 				if err != nil {
 					validationError = append(validationError, "Stock ID Did not Exists in Product ID")
 				}
@@ -71,41 +75,42 @@ func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
 	}
 
 	if len(validationError) > 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": validationError,
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
 	var updateStock Entities.Stock
 	data, err := json.Marshal(rawData)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Error Processing Request Data")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error Processing Request Data"})
 	}
 	if err := json.Unmarshal(data, &updateStock); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Error Processing Request Data")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error Processing Request Data"})
 	}
 
 	var stockId = c.Params("id")
-	stock, err := s.UseCases.GetStockByID(stockId)
+
+	stock, err := s.UseCase.GetStockByID(stockId)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Stock ID Not Found")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Stock ID Not Found"})
 	}
 
 	stock.SID = updateStock.SID
 	stock.SQuantity = updateStock.SQuantity
 	stock.SUpdated = time.Now()
 
-	updateStock, err = s.UseCases.UpdateStock(stock, stockId)
+	updateStock, err = s.UseCase.UpdateStock(stock, stockId)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Stock Already Exists")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed to Updated Stock"})
 	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"stock": updateStock})
 }
 
 func (s *StockHandler) CreateStock(c *fiber.Ctx) error {
 	var rawData map[string]interface{}
+
 	if err := c.BodyParser(&rawData); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid Request Body")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Request Body"})
 	}
 
 	var validationError []string
@@ -120,7 +125,7 @@ func (s *StockHandler) CreateStock(c *fiber.Ctx) error {
 			} else if CheckIdInt <= 0 {
 				validationError = append(validationError, "Stock ID Must Greater than 0")
 			} else {
-				_, err := s.UseCasesProduct.GetProductById(CheckIdString)
+				_, err := s.UseCaseProduct.GetProductById(CheckIdString)
 				if err != nil {
 					validationError = append(validationError, "Stock ID Did not Exists in Product ID")
 				}
@@ -142,54 +147,51 @@ func (s *StockHandler) CreateStock(c *fiber.Ctx) error {
 	}
 
 	if len(validationError) > 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": validationError,
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
 	var createStock Entities.Stock
 	data, err := json.Marshal(rawData)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Error Processing Request Data")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error Processing Request Data"})
 	}
 	err = json.Unmarshal(data, &createStock)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Error Processing Request Data")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error Processing Request Data"})
 	}
 
 	createStock.SUpdated = time.Now()
 
-	stock, err := s.UseCases.CreateStock(createStock)
+	stock, err := s.UseCase.CreateStock(createStock)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Stock Id Already Exists")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed to Created Stock"})
 	}
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"Stock": stock})
 
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"Stock": stock})
 }
 
 func (s *StockHandler) GetStockByID(c *fiber.Ctx) error {
 	stockID := c.Params("id")
-	if stockID == "" {
-		return c.Status(fiber.StatusNotFound).SendString("Stock Id is Required")
-	}
-	stock, err := s.UseCases.GetStockByID(stockID)
+
+	stock, err := s.UseCase.GetStockByID(stockID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Invalid Stock Id")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Stock ID Not Found"})
 	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"Stock": stock})
 }
 
 func (s *StockHandler) GetAllStock(c *fiber.Ctx) error {
-	stocks, err := s.UseCases.GetAllStocks()
+	stocks, err := s.UseCase.GetAllStocks()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Something Went Wrong")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Something Went Wrong"})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"stocks": stocks})
 }
 
-func NewStockHandler(useCases UseCases.IStockCase, useCasesProduct UseCases.IProductCase) StockHandlerI {
+func NewStockHandler(useCase UseCases.IStockUseCase, useCaseProduct UseCases.IProductUseCase) IStockHandler {
 	return &StockHandler{
-		UseCases:        useCases,
-		UseCasesProduct: useCasesProduct,
+		UseCase:        useCase,
+		UseCaseProduct: useCaseProduct,
 	}
 }

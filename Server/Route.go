@@ -5,7 +5,7 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
 )
 
-func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStock UseCases.IStockCase, uAddress UseCases.IAddressCase, uTransactionID UseCases.ITransactionIDCase, uOrder UseCases.IOrderCase) {
+func (s *FiberServer) SetupRoute(uProduct UseCases.IProductUseCase, uStock UseCases.IStockUseCase, uAddress UseCases.IAddressUseCase, uTransactionID UseCases.ITransactionIDUseCase, uOrder UseCases.IOrderUseCase) {
 	ProductHandler := Handlers.NewProductHandler(uProduct, uStock)
 	StockHandler := Handlers.NewStockHandler(uStock, uProduct)
 	AddressHandler := Handlers.NewAddressHandler(uAddress)
@@ -33,7 +33,7 @@ func (s *FiberServer) SetupRoute(uProduct UseCases.IProductCase, uStock UseCases
 	s.app.Delete("address/delete/:city", AddressHandler.DeleteAddress)
 
 	// TransactionID Route
-	s.app.Get("/transactionIDs/", TransactionIDHandler.GetAllOrder)
+	s.app.Get("/transactionIDs/", TransactionIDHandler.GetAllTransactionIDs)
 	s.app.Get("/transactionID/:tid", TransactionIDHandler.GetOrderByTransactionID)
 	s.app.Post("/order/calculate/", TransactionIDHandler.CreateTransactionID)
 	s.app.Delete("/transactionID/delete/:tid", TransactionIDHandler.DeleteTransactionID)

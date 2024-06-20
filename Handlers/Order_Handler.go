@@ -2,6 +2,7 @@ package Handlers
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
 	"reflect"
 	"strconv"
 	"strings"
@@ -13,18 +14,17 @@ import (
 )
 
 type OrderHandler struct {
-	UseCases               UseCases.IOrderCase
-	UseCasesStock          UseCases.IStockCase
-	UseCasesOrderCalculate UseCases.ITransactionIDCase
+	UseCase              UseCases.IOrderUseCase
+	UseCaseStock         UseCases.IStockUseCase
+	UseCaseTransactionID UseCases.ITransactionIDUseCase
 }
 
 func (o *OrderHandler) GetOrderById(c *fiber.Ctx) error {
-	orderId, _ := strconv.ParseInt(c.Params("oid"), 10, 64)
-	order, err := o.UseCases.GetOrderById(orderId)
+	orderID := c.Params("oid")
+
+	order, err := o.UseCase.GetOrderById(orderID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid Order Id",
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Order Id Not Found"})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"order": order})
 }
@@ -32,9 +32,7 @@ func (o *OrderHandler) GetOrderById(c *fiber.Ctx) error {
 func (o *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 	var rawData map[string]interface{}
 	if err := c.BodyParser(&rawData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid Request Body",
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Request Body"})
 	}
 
 	var validationError []string
@@ -48,31 +46,25 @@ func (o *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 	}
 
 	if len(validationError) > 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": validationError,
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
-	TempOrder, err := o.UseCasesOrderCalculate.GetOrderByTransactionID(rawData["OTranID"].(string))
+	TempOrder, err := o.UseCaseTransactionID.GetOrderByTransactionID(rawData["OTranID"].(string))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid Transaction ID",
-		})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Transaction ID Not Found"})
 	}
 
-	productList := strings.Split(TempOrder.OProduct, ", ")
+	productList := strings.Split(TempOrder.TProductList, ", ")
 	for _, product := range productList {
 		parts := strings.Split(product, ":")
 		PID := strings.TrimSpace(parts[0])
 		PQuantity, _ := strconv.ParseFloat(strings.TrimSpace(parts[1]), 64)
 
-		if _, err := o.UseCasesStock.GetStockByID(PID); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Stock Did Not Create",
-			})
+		if _, err := o.UseCaseStock.GetStockByID(PID); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Stock ID Not Found or Did not Create Stock"})
 		}
 
-		StockQuantity, _ := o.UseCasesStock.GetStockByID(PID)
+		StockQuantity, _ := o.UseCaseStock.GetStockByID(PID)
 		NewQuantity := StockQuantity.SQuantity - PQuantity
 
 		TempStock := Entities.Stock{
@@ -81,11 +73,9 @@ func (o *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 			SUpdated:  time.Now(),
 		}
 
-		_, err := o.UseCasesStock.UpdateStock(TempStock, PID)
+		_, err := o.UseCaseStock.UpdateStock(TempStock, PID)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Cannot Create Order, Because Stock is Not Enough",
-			})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot Create Order, Because Stock is Not Enough"})
 		}
 	}
 
@@ -93,119 +83,96 @@ func (o *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 
 	data, err := json.Marshal(rawData)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Error Processing Request Data",
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error Processing Request Data"})
 	}
 	if err := json.Unmarshal(data, &createOrder); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Error Processing Request Data",
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error Processing Request Data"})
 	}
 
-	createOrder.OTranID = TempOrder.OTranID
+	createOrder.OID = uuid.New()
+	createOrder.OTranID = TempOrder.TID
 	createOrder.OPaid = false
-	createOrder.ODestination = TempOrder.ODestination
-	createOrder.OPrice = TempOrder.OTotalPrice
+	createOrder.ODestination = TempOrder.TDestination
+	createOrder.OPrice = TempOrder.TPrice
 	createOrder.OStatus = "New"
 	createOrder.OCreated = time.Now()
 
-	_, err = o.UseCases.CreateOrder(createOrder)
+	_, err = o.UseCase.CreateOrder(createOrder)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Failed to Create Order",
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed to Create Order"})
 	}
-	return c.JSON(fiber.Map{
-		"message": "Created Order Succeed",
-	})
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Created Order Succeed"})
 }
 
 func (o *OrderHandler) ChangeOrderStatus(c *fiber.Ctx) error {
 	var rawData map[string]interface{}
+
 	if err := c.BodyParser(&rawData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid Request Body",
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Request Body"})
 	}
 
 	if OStatus, ok := rawData["OStatus"].(string); ok {
 		if reflect.TypeOf(OStatus).Kind() != reflect.String {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Order Status Must Be String",
-			})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Order Status Must Be String"})
 		}
 	} else {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Order Status is Required and Must Be String",
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Order Status is Required and Must Be String"})
 	}
 
 	OrderStatus := rawData["OStatus"].(string)
+
 	var Order Entities.Order
-	OrderId, _ := strconv.ParseInt(c.Params("oid"), 10, 64)
+
+	OrderID := c.Params("oid")
 
 	switch OrderStatus {
 	case "Paid":
-		TempOrder, err := o.UseCases.GetOrderById(OrderId)
+		TempOrder, err := o.UseCase.GetOrderById(OrderID)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid Order Id",
-			})
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Order ID Not Found"})
 		}
 		if TempOrder.OStatus == "New" {
 			Order.OStatus = "Paid"
 			Order.OPaid = true
 		} else {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid Order Status",
-			})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Order Status"})
 		}
-		NewStatus, err := o.UseCases.ChangeOrderStatus(Order, OrderId)
+
+		NewStatus, err := o.UseCase.ChangeOrderStatus(Order, OrderID)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Cannot Change Order Status",
-			})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot Change Order Status"})
 		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"order": NewStatus,
-		})
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"order": NewStatus})
+
 	case "Processing":
-		TempOrder, err := o.UseCases.GetOrderById(OrderId)
+		TempOrder, err := o.UseCase.GetOrderById(OrderID)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid Order Id",
-			})
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Order ID Not Found"})
 		}
+
 		if TempOrder.OStatus == "Paid" {
 			if TempOrder.ODestination != "Branch" {
 				Order.OStatus = "Processing"
 				Order.OPaid = true
 			} else {
-				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-					"message": "Please Come Pick Up your Product at the Branch",
-				})
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Please Come Pick Up your Product at the Branch"})
 			}
 		} else {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid Order Status",
-			})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Order Status"})
 		}
-		NewStatus, err := o.UseCases.ChangeOrderStatus(Order, OrderId)
+
+		NewStatus, err := o.UseCase.ChangeOrderStatus(Order, OrderID)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Cannot Change Order Status",
-			})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot Change Order Status"})
 		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"order": NewStatus,
-		})
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"order": NewStatus})
+
 	case "Done":
-		TempOrder, err := o.UseCases.GetOrderById(OrderId)
+		TempOrder, err := o.UseCase.GetOrderById(OrderID)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid Order Id",
-			})
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Order ID Not Found"})
 		}
 		if TempOrder.OStatus == "Processing" {
 			Order.OStatus = "Done"
@@ -214,30 +181,25 @@ func (o *OrderHandler) ChangeOrderStatus(c *fiber.Ctx) error {
 			Order.OStatus = "Done"
 			Order.OPaid = true
 		} else {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid Order Status",
-			})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Order Status"})
 		}
-		NewStatus, err := o.UseCases.ChangeOrderStatus(Order, OrderId)
+
+		NewStatus, err := o.UseCase.ChangeOrderStatus(Order, OrderID)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Cannot Change Order Status",
-			})
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot Change Order Status"})
 		}
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"order": NewStatus,
-		})
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"order": NewStatus})
+
 	default:
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid Order Status",
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Order Status"})
 	}
 }
 
-func NewOrderHandler(useCases UseCases.IOrderCase, useCasesStock UseCases.IStockCase, useCasesOrderCalculate UseCases.ITransactionIDCase) OrderHandlerI {
+func NewOrderHandler(useCase UseCases.IOrderUseCase, useCaseStock UseCases.IStockUseCase, useCaseTransactionID UseCases.ITransactionIDUseCase) IOrderHandler {
 	return &OrderHandler{
-		UseCases:               useCases,
-		UseCasesStock:          useCasesStock,
-		UseCasesOrderCalculate: useCasesOrderCalculate,
+		UseCase:              useCase,
+		UseCaseStock:         useCaseStock,
+		UseCaseTransactionID: useCaseTransactionID,
 	}
 }

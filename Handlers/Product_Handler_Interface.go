@@ -2,7 +2,7 @@ package Handlers
 
 import "github.com/gofiber/fiber/v2"
 
-type ProductHandlerI interface {
+type IProductHandler interface {
 	GetAllProducts(c *fiber.Ctx) error
 	GetProductByID(c *fiber.Ctx) error
 	CreateProduct(c *fiber.Ctx) error

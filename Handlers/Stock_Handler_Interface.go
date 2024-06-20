@@ -2,7 +2,7 @@ package Handlers
 
 import "github.com/gofiber/fiber/v2"
 
-type StockHandlerI interface {
+type IStockHandler interface {
 	GetAllStock(c *fiber.Ctx) error
 	GetStockByID(c *fiber.Ctx) error
 	CreateStock(c *fiber.Ctx) error
