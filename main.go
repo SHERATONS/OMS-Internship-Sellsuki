@@ -17,6 +17,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file", err)
 	}
+
 	port := os.Getenv("PORT")
 
 	db := Database.InitDatabase()
