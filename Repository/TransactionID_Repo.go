@@ -1,6 +1,7 @@
 package Repository
 
 import (
+	"errors"
 	"log"
 
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
@@ -14,23 +15,41 @@ type TransactionIDRepo struct {
 
 func (o TransactionIDRepo) GetAllTransactionIDs() ([]Entities.TransactionID, error) {
 	var TransactionID []Entities.TransactionID
+
 	err := o.Db.Order("t_id").Find(&TransactionID).Error
-	return TransactionID, err
+	if err != nil {
+		return TransactionID, err
+	}
+
+	return TransactionID, nil
 }
 
 func (o TransactionIDRepo) GetOrderByTransactionID(transactionID string) (Entities.TransactionID, error) {
 	var transaction Entities.TransactionID
+
 	err := o.Db.Where("t_id = ?", transactionID).First(&transaction).Error
-	return transaction, err
+	if err != nil {
+		return transaction, errors.New("transaction ID not found")
+	}
+
+	return transaction, nil
 }
 
 func (o TransactionIDRepo) CreateTransactionID(TransactionInfo Entities.TransactionID) (Entities.TransactionID, error) {
 	err := o.Db.Create(&TransactionInfo).Error
-	return TransactionInfo, err
+	if err != nil {
+		return TransactionInfo, errors.New("failed to create transaction ID")
+	}
+
+	return TransactionInfo, nil
 }
 
 func (o TransactionIDRepo) DeleteTransactionID(transactionID string) error {
 	err := o.Db.Where("t_id = ?", transactionID).Delete(&Entities.TransactionID{}).Error
+	if err != nil {
+		return errors.New("failed to delete transaction ID")
+	}
+
 	return err
 }
 

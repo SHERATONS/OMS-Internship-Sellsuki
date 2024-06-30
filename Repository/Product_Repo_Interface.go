@@ -1,6 +1,8 @@
 package Repository
 
-import "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+import (
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+)
 
 type IProductRepo interface {
 	GetAllProducts() ([]Entities.Product, error)

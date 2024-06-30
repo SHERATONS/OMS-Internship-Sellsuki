@@ -3,34 +3,33 @@ package Trace
 import (
 	"context"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"google.golang.org/grpc"
 	"log"
 )
 
-func initTracer() func() {
+func InitTracer() func() {
 	ctx := context.Background()
 
-	conn, err := grpc.DialContext(ctx, "temp:3200", grpc.WithInsecure())
+	// Create an OTLP HTTP exporter
+	exporter, err := otlptracehttp.New(ctx)
 	if err != nil {
-		log.Fatalf("failed to create gRPC connection to collector: %v", err)
+		log.Fatal(err)
 	}
 
-	otlpExporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(conn))
-	if err != nil {
-		log.Fatalf("failed to create the collector exporter: %v", err)
-	}
+	// Create a new tracer provider with the exporter
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exporter),
+	)
 
-	traceProvider := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithResource(resource.Empty()),
-		sdktrace.WithBatcher(otlpExporter))
+	// Set the global tracer provider
+	otel.SetTracerProvider(tp)
 
-	otel.SetTracerProvider(traceProvider)
+	// Set the global propagator
+	otel.SetTextMapPropagator(propagation.TraceContext{})
 
 	return func() {
-		_ = otlpExporter.Shutdown(ctx)
+		_ = tp.Shutdown(ctx)
 	}
 }

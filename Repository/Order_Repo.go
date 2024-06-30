@@ -1,6 +1,7 @@
 package Repository
 
 import (
+	"errors"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
@@ -13,17 +14,25 @@ type OrderRepo struct {
 
 func (o *OrderRepo) GetOrderByID(orderId string) (Entities.Order, error) {
 	var order Entities.Order
+
 	err := o.Db.Where("o_id = ?", orderId).First(&order).Error
-	return order, err
+	if err != nil {
+		return order, errors.New("order not found")
+	}
+	return order, nil
 }
 
 func (o *OrderRepo) CreateOrder(order Entities.Order) (Entities.Order, error) {
 	err := o.Db.Create(&order).Error
-	return order, err
+	if err != nil {
+		return order, errors.New("failed to create order")
+	}
+	return order, nil
 }
 
 func (o *OrderRepo) ChangeOrderStatus(order Entities.Order, oid string) (Entities.Order, error) {
 	var existingOrder Entities.Order
+
 	err := o.Db.First(&existingOrder, "o_id = ?", oid).Error
 	if err != nil {
 		return Entities.Order{}, err

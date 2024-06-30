@@ -2,7 +2,6 @@ package Repository
 
 import (
 	"errors"
-	// "errors"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
@@ -14,32 +13,59 @@ type StockRepo struct {
 }
 
 func (s *StockRepo) GetAllStocks() ([]Entities.Stock, error) {
+	//_, span := Stracer.Start(ctx, "GetAllStocks")
+	//defer span.End()
+
 	var stocks []Entities.Stock
+
 	err := s.Db.Order("CAST(s_id AS INTEGER)").Find(&stocks).Error
-	return stocks, err
+	if err != nil {
+		//span.RecordError(err)
+		return stocks, err
+	}
+
+	return stocks, nil
 }
 
 func (s StockRepo) GetStockByID(stockId string) (Entities.Stock, error) {
 	var stock Entities.Stock
+
 	err := s.Db.Where("s_id = ?", stockId).First(&stock).Error
-	return stock, err
+	if err != nil {
+		return stock, errors.New("stock Not Found")
+	}
+
+	return stock, nil
 }
 
 func (s StockRepo) CreateStock(Stock Entities.Stock) (Entities.Stock, error) {
 	err := s.Db.Create(&Stock).Error
-	return Stock, err
+	if err != nil {
+		return Stock, errors.New("failed to create stock")
+	}
+
+	return Stock, nil
 }
 
 func (s StockRepo) UpdateStock(Stock Entities.Stock, stockId string) (Entities.Stock, error) {
 	if Stock.SQuantity < 0 {
 		return Stock, errors.New("stock quantity is negative")
 	}
+
 	err := s.Db.Where("s_id = ?", stockId).Save(&Stock).Error
-	return Stock, err
+	if err != nil {
+		return Stock, errors.New("failed to update stock")
+	}
+
+	return Stock, nil
 }
 
 func (s StockRepo) DeleteStock(stockId string) error {
 	err := s.Db.Where("s_id = ?", stockId).Delete(&Entities.Stock{}).Error
+	if err != nil {
+		return errors.New("failed to delete stock")
+	}
+
 	return err
 }
 

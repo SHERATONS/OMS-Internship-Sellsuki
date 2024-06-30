@@ -1,6 +1,8 @@
 package UseCases
 
-import "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+import (
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+)
 
 type IAddressUseCase interface {
 	GetAddressByCity(city string) (Entities.Address, error)

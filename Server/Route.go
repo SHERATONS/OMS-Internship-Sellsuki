@@ -6,10 +6,10 @@ import (
 )
 
 func (s *FiberServer) SetupRoute(uProduct UseCases.IProductUseCase, uStock UseCases.IStockUseCase, uAddress UseCases.IAddressUseCase, uTransactionID UseCases.ITransactionIDUseCase, uOrder UseCases.IOrderUseCase) {
-	ProductHandler := Handlers.NewProductHandler(uProduct, uStock)
-	StockHandler := Handlers.NewStockHandler(uStock, uProduct)
+	ProductHandler := Handlers.NewProductHandler(uProduct)
+	StockHandler := Handlers.NewStockHandler(uStock)
 	AddressHandler := Handlers.NewAddressHandler(uAddress)
-	TransactionIDHandler := Handlers.NewTransactionIDHandler(uTransactionID, uProduct, uAddress)
+	TransactionIDHandler := Handlers.NewTransactionIDHandler(uTransactionID)
 	OrderHandler := Handlers.NewOrderHandler(uOrder, uStock, uTransactionID)
 
 	// Product Route
