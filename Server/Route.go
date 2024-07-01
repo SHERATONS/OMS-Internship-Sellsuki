@@ -1,16 +1,27 @@
 package Server
 
 import (
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Handlers"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Handlers/Address"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Handlers/Order"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Handlers/Product"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Handlers/Stock"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Handlers/Transaction"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/MiddleWare"
+	Address2 "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Address"
+	Order2 "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Order"
+	Product2 "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Product"
+	Stock2 "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Stock"
+	Transaction2 "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Transaction"
 )
 
-func (s *FiberServer) SetupRoute(uProduct UseCases.IProductUseCase, uStock UseCases.IStockUseCase, uAddress UseCases.IAddressUseCase, uTransactionID UseCases.ITransactionIDUseCase, uOrder UseCases.IOrderUseCase) {
-	ProductHandler := Handlers.NewProductHandler(uProduct)
-	StockHandler := Handlers.NewStockHandler(uStock)
-	AddressHandler := Handlers.NewAddressHandler(uAddress)
-	TransactionIDHandler := Handlers.NewTransactionIDHandler(uTransactionID)
-	OrderHandler := Handlers.NewOrderHandler(uOrder, uStock, uTransactionID)
+func (s *FiberServer) SetupRoute(uProduct Product2.IProductUseCase, uStock Stock2.IStockUseCase, uAddress Address2.IAddressUseCase, uTransactionID Transaction2.ITransactionIDUseCase, uOrder Order2.IOrderUseCase) {
+	ProductHandler := Product.NewProductHandler(uProduct)
+	StockHandler := Stock.NewStockHandler(uStock)
+	AddressHandler := Address.NewAddressHandler(uAddress)
+	TransactionIDHandler := Transaction.NewTransactionIDHandler(uTransactionID)
+	OrderHandler := Order.NewOrderHandler(uOrder)
+
+	s.app.Use(MiddleWare.TracingMiddleWare)
 
 	// Product Route
 	s.app.Get("/products/", ProductHandler.GetAllProducts)
