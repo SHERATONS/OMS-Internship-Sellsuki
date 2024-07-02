@@ -1,8 +1,10 @@
 package Order
 
 import (
+	"context"
 	"errors"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	Order2 "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Order"
+	Stock2 "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Stock"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository/Order"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository/Stock"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository/Transaction"
@@ -18,14 +20,20 @@ type OrderUseCase struct {
 	RepoTransactionID Transaction.ITransactionIDRepo
 }
 
-func (o OrderUseCase) GetOrderById(orderID string) (Entities.Order, error) {
-	return o.Repo.GetOrderByID(orderID)
+func (o OrderUseCase) GetOrderById(ctx context.Context, orderID string) (Order2.Order, error) {
+	ctx, span := tracer.Start(ctx, "GetOrderById_UseCase")
+	defer span.End()
+
+	return o.Repo.GetOrderByID(ctx, orderID)
 }
 
-func (o OrderUseCase) CreateOrder(TransactionID string) (Entities.Order, error) {
-	TempOrder, err := o.RepoTransactionID.GetOrderByTransactionID(TransactionID)
+func (o OrderUseCase) CreateOrder(ctx context.Context, TransactionID string) (Order2.Order, error) {
+	ctx, span := tracer.Start(ctx, "CreateOrder_UseCase")
+	defer span.End()
+
+	TempOrder, err := o.RepoTransactionID.GetOrderByTransactionID(ctx, TransactionID)
 	if err != nil {
-		return Entities.Order{}, err
+		return Order2.Order{}, err
 	}
 
 	productList := strings.Split(TempOrder.TProductList, ", ")
@@ -34,26 +42,26 @@ func (o OrderUseCase) CreateOrder(TransactionID string) (Entities.Order, error) 
 		PID := strings.TrimSpace(parts[0])
 		PQuantity, _ := strconv.ParseFloat(strings.TrimSpace(parts[1]), 64)
 
-		if _, err := o.RepoStock.GetStockByID(PID); err != nil {
-			return Entities.Order{}, err
+		if _, err := o.RepoStock.GetStockByID(ctx, PID); err != nil {
+			return Order2.Order{}, err
 		}
 
-		StockQuantity, _ := o.RepoStock.GetStockByID(PID)
+		StockQuantity, _ := o.RepoStock.GetStockByID(ctx, PID)
 		NewQuantity := StockQuantity.SQuantity - PQuantity
 
-		TempStock := Entities.Stock{
+		TempStock := Stock2.Stock{
 			SID:       PID,
 			SQuantity: NewQuantity,
 			SUpdated:  time.Now(),
 		}
 
-		_, err := o.RepoStock.UpdateStock(TempStock, PID)
+		_, err := o.RepoStock.UpdateStock(ctx, TempStock, PID)
 		if err != nil {
-			return Entities.Order{}, err
+			return Order2.Order{}, err
 		}
 	}
 
-	var createOrder Entities.Order
+	var createOrder Order2.Order
 
 	createOrder.OID = uuid.New()
 	createOrder.OTranID = TempOrder.TID
@@ -63,49 +71,24 @@ func (o OrderUseCase) CreateOrder(TransactionID string) (Entities.Order, error) 
 	createOrder.OStatus = "New"
 	createOrder.OCreated = time.Now()
 
-	return o.Repo.CreateOrder(createOrder)
+	return o.Repo.CreateOrder(ctx, createOrder)
 }
 
-func (o OrderUseCase) ChangeOrderStatus(orderID string, orderStatus string) (Entities.Order, error) {
-	TempOrder, err := o.GetOrderById(orderID)
+func (o OrderUseCase) ChangeOrderStatus(ctx context.Context, orderID string, orderStatus string) (Order2.Order, error) {
+	ctx, span := tracer.Start(ctx, "ChangeOrderStatus_UseCase")
+	defer span.End()
+
+	TempOrder, err := o.GetOrderById(ctx, orderID)
 	if err != nil {
 		return TempOrder, errors.New("order ID Not Found")
 	}
 
-	switch orderStatus {
-	case "Paid":
-		if TempOrder.OStatus == "New" {
-			TempOrder.OStatus = "Paid"
-			TempOrder.OPaid = true
-		} else {
-			return TempOrder, errors.New("invalid Order Status")
-		}
-
-	case "Processing":
-		if TempOrder.OStatus == "Paid" {
-			if TempOrder.ODestination != "Branch" {
-				TempOrder.OStatus = "Processing"
-				TempOrder.OPaid = true
-			} else {
-				return TempOrder, errors.New("please Come Pick Up your Product at the Branch")
-			}
-		} else {
-			return TempOrder, errors.New("invalid Order Status")
-		}
-
-	case "Done":
-		if TempOrder.OStatus == "Processing" || (TempOrder.OStatus == "Paid" && TempOrder.ODestination == "Branch") {
-			TempOrder.OStatus = "Done"
-			TempOrder.OPaid = true
-		} else {
-			return TempOrder, errors.New("invalid Order Status")
-		}
-
-	default:
-		return TempOrder, errors.New("invalid Order Status")
+	TempOrder, err = TempOrder.ChangeStatus(TempOrder, orderStatus)
+	if err != nil {
+		return TempOrder, err
 	}
 
-	return o.Repo.ChangeOrderStatus(TempOrder, orderID)
+	return o.Repo.ChangeOrderStatus(ctx, TempOrder, orderID)
 }
 
 func NewOrderUseCase(Repo Order.IOrderRepo, RepoStock Stock.IStockRepo, RepoTransactionID Transaction.ITransactionIDRepo) IOrderUseCase {

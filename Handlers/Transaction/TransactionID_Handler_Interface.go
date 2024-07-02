@@ -1,6 +1,9 @@
 package Transaction
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"go.opentelemetry.io/otel"
+)
 
 type ITransactionIDHandler interface {
 	GetAllTransactionIDs(c *fiber.Ctx) error
@@ -8,3 +11,5 @@ type ITransactionIDHandler interface {
 	CreateTransactionID(c *fiber.Ctx) error
 	DeleteTransactionID(c *fiber.Ctx) error
 }
+
+var tracer = otel.Tracer("TransactionID_Handler")

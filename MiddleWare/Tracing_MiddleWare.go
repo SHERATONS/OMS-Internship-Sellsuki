@@ -30,7 +30,6 @@ func TracingMiddleWare(c *fiber.Ctx) error {
 	span.SetAttributes(
 		attribute.String("http.status_code", strconv.Itoa(c.Response().StatusCode())),
 		attribute.String("request.duration_ms", duration.String()),
-		attribute.String("error.message", err.Error()),
 	)
 
 	return err

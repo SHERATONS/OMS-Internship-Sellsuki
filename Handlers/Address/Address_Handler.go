@@ -2,7 +2,7 @@ package Address
 
 import (
 	"encoding/json"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	Address2 "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Address"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Address"
 	"github.com/gofiber/fiber/v2"
 	"net/url"
@@ -13,6 +13,9 @@ type AddressHandler struct {
 }
 
 func (a *AddressHandler) GetAddressByCity(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "GetAddressByCity_Handler")
+	defer span.End()
+
 	city := c.Params("city")
 
 	NewCity, err := url.QueryUnescape(city)
@@ -20,7 +23,7 @@ func (a *AddressHandler) GetAddressByCity(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid City Parameter"})
 	}
 
-	address, err := a.UseCase.GetAddressByCity(NewCity)
+	address, err := a.UseCase.GetAddressByCity(ctx, NewCity)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -29,6 +32,9 @@ func (a *AddressHandler) GetAddressByCity(c *fiber.Ctx) error {
 }
 
 func (a *AddressHandler) CreateAddress(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "CreateAddress_Handler")
+	defer span.End()
+
 	var rawData map[string]interface{}
 	if err := c.BodyParser(&rawData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Request Body"})
@@ -36,15 +42,17 @@ func (a *AddressHandler) CreateAddress(c *fiber.Ctx) error {
 
 	var validationError []string
 
-	if err := Entities.ValidateCity(rawData); err != nil {
+	var tempAddress Address2.Address
+
+	if err := tempAddress.ValidateCity(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateCountry(rawData); err != nil {
+	if err := tempAddress.ValidateCountry(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateAPrice(rawData); err != nil {
+	if err := tempAddress.ValidateAPrice(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
@@ -52,7 +60,7 @@ func (a *AddressHandler) CreateAddress(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
-	var createAddress Entities.Address
+	var createAddress Address2.Address
 
 	data, err := json.Marshal(rawData)
 	if err != nil {
@@ -62,7 +70,7 @@ func (a *AddressHandler) CreateAddress(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error Processing Request Data"})
 	}
 
-	address, err := a.UseCase.CreateAddress(createAddress)
+	address, err := a.UseCase.CreateAddress(ctx, createAddress)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -71,6 +79,9 @@ func (a *AddressHandler) CreateAddress(c *fiber.Ctx) error {
 }
 
 func (a *AddressHandler) UpdateAddress(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "UpdateAddress_Handler")
+	defer span.End()
+
 	var rawData map[string]interface{}
 
 	if err := c.BodyParser(&rawData); err != nil {
@@ -79,15 +90,17 @@ func (a *AddressHandler) UpdateAddress(c *fiber.Ctx) error {
 
 	var validationError []string
 
-	if err := Entities.ValidateCity(rawData); err != nil {
+	var tempAddress Address2.Address
+
+	if err := tempAddress.ValidateCity(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateCountry(rawData); err != nil {
+	if err := tempAddress.ValidateCountry(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateAPrice(rawData); err != nil {
+	if err := tempAddress.ValidateAPrice(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
@@ -95,7 +108,7 @@ func (a *AddressHandler) UpdateAddress(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
-	var updateAddress Entities.Address
+	var updateAddress Address2.Address
 
 	data, err := json.Marshal(rawData)
 	if err != nil {
@@ -112,7 +125,7 @@ func (a *AddressHandler) UpdateAddress(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid City Parameter"})
 	}
 
-	updateAddress, err = a.UseCase.UpdateAddress(updateAddress, NewCity)
+	updateAddress, err = a.UseCase.UpdateAddress(ctx, updateAddress, NewCity)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -121,6 +134,9 @@ func (a *AddressHandler) UpdateAddress(c *fiber.Ctx) error {
 }
 
 func (a *AddressHandler) DeleteAddress(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "DeleteAddress_Handler")
+	defer span.End()
+
 	city := c.Params("city")
 
 	NewCity, err := url.QueryUnescape(city)
@@ -128,7 +144,7 @@ func (a *AddressHandler) DeleteAddress(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid City Parameter"})
 	}
 
-	err = a.UseCase.DeleteAddress(NewCity)
+	err = a.UseCase.DeleteAddress(ctx, NewCity)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

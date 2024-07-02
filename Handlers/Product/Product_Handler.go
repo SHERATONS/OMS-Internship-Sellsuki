@@ -2,7 +2,7 @@ package Product
 
 import (
 	"encoding/json"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	Product2 "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Product"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Product"
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,9 +12,12 @@ type ProductHandler struct {
 }
 
 func (s *ProductHandler) GetProductByID(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "GetProductByID_Handler")
+	defer span.End()
+
 	productID := c.Params("id")
 
-	product, err := s.UseCase.GetProductById(productID)
+	product, err := s.UseCase.GetProductById(ctx, productID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Product ID Not Found"})
 	}
@@ -23,6 +26,9 @@ func (s *ProductHandler) GetProductByID(c *fiber.Ctx) error {
 }
 
 func (s *ProductHandler) CreateProduct(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "CreateProduct_Handler")
+	defer span.End()
+
 	var rawData map[string]interface{}
 
 	if err := c.BodyParser(&rawData); err != nil {
@@ -31,19 +37,21 @@ func (s *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 
 	var validationError []string
 
-	if err := Entities.ValidateProductID(rawData); err != nil {
+	var tempProduct Product2.Product
+
+	if err := tempProduct.ValidateProductID(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateProductName(rawData); err != nil {
+	if err := tempProduct.ValidateProductName(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateProductPrice(rawData); err != nil {
+	if err := tempProduct.ValidateProductPrice(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateProductDescription(rawData); err != nil {
+	if err := tempProduct.ValidateProductDescription(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
@@ -51,7 +59,7 @@ func (s *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
-	var createProduct Entities.Product
+	var createProduct Product2.Product
 
 	data, err := json.Marshal(rawData)
 	if err != nil {
@@ -61,7 +69,7 @@ func (s *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error Processing Request Data"})
 	}
 
-	product, err := s.UseCase.CreateProduct(createProduct)
+	product, err := s.UseCase.CreateProduct(ctx, createProduct)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Product ID Already Exists"})
 	}
@@ -70,6 +78,9 @@ func (s *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 }
 
 func (s *ProductHandler) UpdateProductById(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "UpdateProductById_Handler")
+	defer span.End()
+
 	var rawData map[string]interface{}
 
 	if err := c.BodyParser(&rawData); err != nil {
@@ -78,19 +89,21 @@ func (s *ProductHandler) UpdateProductById(c *fiber.Ctx) error {
 
 	var validationError []string
 
-	if err := Entities.ValidateProductID(rawData); err != nil {
+	var tempProduct Product2.Product
+
+	if err := tempProduct.ValidateProductID(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateProductName(rawData); err != nil {
+	if err := tempProduct.ValidateProductName(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateProductPrice(rawData); err != nil {
+	if err := tempProduct.ValidateProductPrice(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateProductDescription(rawData); err != nil {
+	if err := tempProduct.ValidateProductDescription(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
@@ -98,7 +111,7 @@ func (s *ProductHandler) UpdateProductById(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
-	var updateProduct Entities.Product
+	var updateProduct Product2.Product
 
 	data, err := json.Marshal(rawData)
 	if err != nil {
@@ -110,7 +123,7 @@ func (s *ProductHandler) UpdateProductById(c *fiber.Ctx) error {
 
 	var productId = c.Params("id")
 
-	updateProduct, err = s.UseCase.UpdateProduct(updateProduct, productId)
+	updateProduct, err = s.UseCase.UpdateProduct(ctx, updateProduct, productId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -119,9 +132,12 @@ func (s *ProductHandler) UpdateProductById(c *fiber.Ctx) error {
 }
 
 func (s *ProductHandler) DeleteProductById(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "DeleteProductById_Handler")
+	defer span.End()
+
 	productID := c.Params("id")
 
-	err := s.UseCase.DeleteProductById(productID)
+	err := s.UseCase.DeleteProductById(ctx, productID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -133,7 +149,10 @@ func (s *ProductHandler) DeleteProductById(c *fiber.Ctx) error {
 }
 
 func (s *ProductHandler) GetAllProducts(c *fiber.Ctx) error {
-	products, err := s.UseCase.GetAllProducts()
+	ctx, span := tracer.Start(c.UserContext(), "GetAllProducts_Handler")
+	defer span.End()
+
+	products, err := s.UseCase.GetAllProducts(ctx)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Something Went Wrong"})
 	}

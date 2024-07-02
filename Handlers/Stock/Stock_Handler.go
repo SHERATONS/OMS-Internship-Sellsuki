@@ -2,7 +2,7 @@ package Stock
 
 import (
 	"encoding/json"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	Stock2 "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Stock"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Stock"
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,9 +12,12 @@ type StockHandler struct {
 }
 
 func (s *StockHandler) DeleteStock(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "DeleteStock_Handler")
+	defer span.End()
+
 	var stockId = c.Params("id")
 
-	err := s.UseCase.DeleteStock(stockId)
+	err := s.UseCase.DeleteStock(ctx, stockId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -26,6 +29,8 @@ func (s *StockHandler) DeleteStock(c *fiber.Ctx) error {
 }
 
 func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "UpdateStock_Handler")
+	defer span.End()
 	var rawData map[string]interface{}
 	if err := c.BodyParser(&rawData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Request Body"})
@@ -33,11 +38,13 @@ func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
 
 	var validationError []string
 
-	if err := Entities.ValidateStockID(rawData); err != nil {
+	var tempStock Stock2.Stock
+
+	if err := tempStock.ValidateStockID(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateStockQuantity(rawData); err != nil {
+	if err := tempStock.ValidateStockQuantity(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
@@ -45,7 +52,7 @@ func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
-	var updateStock Entities.Stock
+	var updateStock Stock2.Stock
 
 	data, err := json.Marshal(rawData)
 	if err != nil {
@@ -57,7 +64,7 @@ func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
 
 	var stockId = c.Params("id")
 
-	updateStock, err = s.UseCase.UpdateStock(updateStock, stockId)
+	updateStock, err = s.UseCase.UpdateStock(ctx, updateStock, stockId)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -66,6 +73,9 @@ func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
 }
 
 func (s *StockHandler) CreateStock(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "CreateStock_Handler")
+	defer span.End()
+
 	var rawData map[string]interface{}
 
 	if err := c.BodyParser(&rawData); err != nil {
@@ -74,11 +84,13 @@ func (s *StockHandler) CreateStock(c *fiber.Ctx) error {
 
 	var validationError []string
 
-	if err := Entities.ValidateStockID(rawData); err != nil {
+	var tempStock Stock2.Stock
+
+	if err := tempStock.ValidateStockID(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateStockQuantity(rawData); err != nil {
+	if err := tempStock.ValidateStockQuantity(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
@@ -86,7 +98,7 @@ func (s *StockHandler) CreateStock(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
-	var createStock Entities.Stock
+	var createStock Stock2.Stock
 
 	data, err := json.Marshal(rawData)
 	if err != nil {
@@ -97,7 +109,7 @@ func (s *StockHandler) CreateStock(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error Processing Request Data"})
 	}
 
-	stock, err := s.UseCase.CreateStock(createStock)
+	stock, err := s.UseCase.CreateStock(ctx, createStock)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -106,9 +118,12 @@ func (s *StockHandler) CreateStock(c *fiber.Ctx) error {
 }
 
 func (s *StockHandler) GetStockByID(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "GetStockByID_Handler")
+	defer span.End()
+
 	stockID := c.Params("id")
 
-	stock, err := s.UseCase.GetStockByID(stockID)
+	stock, err := s.UseCase.GetStockByID(ctx, stockID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Stock ID Not Found"})
 	}
@@ -117,7 +132,10 @@ func (s *StockHandler) GetStockByID(c *fiber.Ctx) error {
 }
 
 func (s *StockHandler) GetAllStock(c *fiber.Ctx) error {
-	stocks, err := s.UseCase.GetAllStocks()
+	ctx, span := tracer.Start(c.UserContext(), "GetAllStock_Handler")
+	defer span.End()
+
+	stocks, err := s.UseCase.GetAllStocks(ctx)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Something Went Wrong"})
 	}

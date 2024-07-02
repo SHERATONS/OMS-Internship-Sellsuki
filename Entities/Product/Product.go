@@ -1,4 +1,4 @@
-package Entities
+package Product
 
 import (
 	"errors"
@@ -17,7 +17,7 @@ type Product struct {
 	PUpdated time.Time
 }
 
-func ValidateProductID(rawData map[string]interface{}) error {
+func (product *Product) ValidateProductID(rawData map[string]interface{}) error {
 	if pId, ok := rawData["PID"]; ok {
 		if reflect.TypeOf(pId).Kind() != reflect.String {
 			return errors.New("product ID Must Be String")
@@ -35,7 +35,7 @@ func ValidateProductID(rawData map[string]interface{}) error {
 	return nil
 }
 
-func ValidateProductName(rawData map[string]interface{}) error {
+func (product *Product) ValidateProductName(rawData map[string]interface{}) error {
 	if pName, ok := rawData["PName"]; ok {
 		if reflect.TypeOf(pName).Kind() != reflect.String {
 			return errors.New("product Name Must Be String")
@@ -47,7 +47,7 @@ func ValidateProductName(rawData map[string]interface{}) error {
 	return nil
 }
 
-func ValidateProductPrice(rawData map[string]interface{}) error {
+func (product *Product) ValidateProductPrice(rawData map[string]interface{}) error {
 	if pPrice, ok := rawData["PPrice"]; ok {
 		if reflect.TypeOf(pPrice).Kind() != reflect.Float64 {
 			return errors.New("product Price Must Be Float")
@@ -64,7 +64,7 @@ func ValidateProductPrice(rawData map[string]interface{}) error {
 	return nil
 }
 
-func ValidateProductDescription(rawData map[string]interface{}) error {
+func (product *Product) ValidateProductDescription(rawData map[string]interface{}) error {
 	if pDesc, ok := rawData["PDesc"]; ok {
 		if reflect.TypeOf(pDesc).Kind() != reflect.String {
 			return errors.New("product Description Must Be String")

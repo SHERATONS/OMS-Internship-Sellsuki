@@ -2,7 +2,7 @@ package Transaction
 
 import (
 	"encoding/json"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/TransactionID"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Transaction"
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,7 +12,10 @@ type TransactionIDHandler struct {
 }
 
 func (o *TransactionIDHandler) GetAllTransactionIDs(c *fiber.Ctx) error {
-	transactionID, err := o.UseCase.GetAllTransactionIDs()
+	ctx, span := tracer.Start(c.UserContext(), "GetAllTransactionIDs_Handler")
+	defer span.End()
+
+	transactionID, err := o.UseCase.GetAllTransactionIDs(ctx)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"success": "Something went wrong"})
 	}
@@ -21,9 +24,12 @@ func (o *TransactionIDHandler) GetAllTransactionIDs(c *fiber.Ctx) error {
 }
 
 func (o *TransactionIDHandler) GetOrderByTransactionID(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "GetOrderByTransactionID_Handler")
+	defer span.End()
+
 	transactionID := c.Params("tid")
 
-	order, err := o.UseCase.GetOrderByTransactionID(transactionID)
+	order, err := o.UseCase.GetOrderByTransactionID(ctx, transactionID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Transaction ID Not Found"})
 	}
@@ -32,6 +38,9 @@ func (o *TransactionIDHandler) GetOrderByTransactionID(c *fiber.Ctx) error {
 }
 
 func (o *TransactionIDHandler) CreateTransactionID(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "CreateTransactionID_Handler")
+	defer span.End()
+
 	var rawData map[string]interface{}
 
 	if err := c.BodyParser(&rawData); err != nil {
@@ -40,11 +49,13 @@ func (o *TransactionIDHandler) CreateTransactionID(c *fiber.Ctx) error {
 
 	var validationError []string
 
-	if err := Entities.ValidateTDestination(rawData); err != nil {
+	var tempTransactionID TransactionID.TransactionID
+
+	if err := tempTransactionID.ValidateTDestination(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
-	if err := Entities.ValidateProductList(rawData); err != nil {
+	if err := tempTransactionID.ValidateProductList(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
@@ -52,7 +63,7 @@ func (o *TransactionIDHandler) CreateTransactionID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
-	var createTransactionID Entities.TransactionID
+	var createTransactionID TransactionID.TransactionID
 
 	data, err := json.Marshal(rawData)
 	if err != nil {
@@ -62,7 +73,7 @@ func (o *TransactionIDHandler) CreateTransactionID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error Processing Request Data"})
 	}
 
-	transactionID, err := o.UseCase.CreateTransactionID(createTransactionID)
+	transactionID, err := o.UseCase.CreateTransactionID(ctx, createTransactionID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -70,9 +81,12 @@ func (o *TransactionIDHandler) CreateTransactionID(c *fiber.Ctx) error {
 }
 
 func (o *TransactionIDHandler) DeleteTransactionID(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "DeleteTransactionID_Handler")
+	defer span.End()
+
 	transactionID := c.Params("tid")
 
-	err := o.UseCase.DeleteTransactionID(transactionID)
+	err := o.UseCase.DeleteTransactionID(ctx, transactionID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}

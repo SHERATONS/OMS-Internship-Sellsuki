@@ -1,7 +1,7 @@
 package Order
 
 import (
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	Order2 "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Order"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Order"
 	"github.com/gofiber/fiber/v2"
 )
@@ -11,9 +11,12 @@ type OrderHandler struct {
 }
 
 func (o *OrderHandler) GetOrderById(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "GetOrderById_Handler")
+	defer span.End()
+
 	orderID := c.Params("oid")
 
-	order, err := o.UseCase.GetOrderById(orderID)
+	order, err := o.UseCase.GetOrderById(ctx, orderID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Order Id Not Found"})
 	}
@@ -21,6 +24,9 @@ func (o *OrderHandler) GetOrderById(c *fiber.Ctx) error {
 }
 
 func (o *OrderHandler) CreateOrder(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "CreateOrder_Handler")
+	defer span.End()
+
 	var rawData map[string]interface{}
 	if err := c.BodyParser(&rawData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Request Body"})
@@ -28,7 +34,9 @@ func (o *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 
 	var validationError []string
 
-	if err := Entities.ValidateTranID(rawData); err != nil {
+	var tempOrder Order2.Order
+
+	if err := tempOrder.ValidateTranID(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
@@ -36,15 +44,20 @@ func (o *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
-	_, err := o.UseCase.CreateOrder(rawData["OTranID"].(string))
+	order, err := o.UseCase.CreateOrder(ctx, rawData["OTranID"].(string))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Created Order Succeed"})
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message": "Created Order Succeed",
+		"orderID": order.OID})
 }
 
 func (o *OrderHandler) ChangeOrderStatus(c *fiber.Ctx) error {
+	ctx, span := tracer.Start(c.UserContext(), "ChangeOrderStatus_Handler")
+	defer span.End()
+
 	var rawData map[string]interface{}
 
 	if err := c.BodyParser(&rawData); err != nil {
@@ -53,7 +66,9 @@ func (o *OrderHandler) ChangeOrderStatus(c *fiber.Ctx) error {
 
 	var validationError []string
 
-	if err := Entities.ValidateOrderStatus(rawData); err != nil {
+	var tempOrder Order2.Order
+
+	if err := tempOrder.ValidateOrderStatus(rawData); err != nil {
 		validationError = append(validationError, err.Error())
 	}
 
@@ -65,7 +80,7 @@ func (o *OrderHandler) ChangeOrderStatus(c *fiber.Ctx) error {
 
 	OrderID := c.Params("oid")
 
-	order, err := o.UseCase.ChangeOrderStatus(OrderID, OrderStatus)
+	order, err := o.UseCase.ChangeOrderStatus(ctx, OrderID, OrderStatus)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}

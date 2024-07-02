@@ -3,7 +3,7 @@ package Order
 import (
 	"context"
 	"errors"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Order"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
 	"log"
@@ -13,8 +13,11 @@ type OrderRepo struct {
 	Db *gorm.DB
 }
 
-func (o *OrderRepo) GetOrderByID(ctx context.Context, orderId string) (Entities.Order, error) {
-	var order Entities.Order
+func (o *OrderRepo) GetOrderByID(ctx context.Context, orderId string) (Order.Order, error) {
+	ctx, span := tracer.Start(ctx, "GetOrderByID_Repo")
+	defer span.End()
+
+	var order Order.Order
 
 	err := o.Db.Where("o_id = ?", orderId).First(&order).Error
 	if err != nil {
@@ -23,7 +26,10 @@ func (o *OrderRepo) GetOrderByID(ctx context.Context, orderId string) (Entities.
 	return order, nil
 }
 
-func (o *OrderRepo) CreateOrder(ctx context.Context, order Entities.Order) (Entities.Order, error) {
+func (o *OrderRepo) CreateOrder(ctx context.Context, order Order.Order) (Order.Order, error) {
+	ctx, span := tracer.Start(ctx, "CreateOrder_Repo")
+	defer span.End()
+
 	err := o.Db.Create(&order).Error
 	if err != nil {
 		return order, errors.New("failed to create order")
@@ -31,12 +37,15 @@ func (o *OrderRepo) CreateOrder(ctx context.Context, order Entities.Order) (Enti
 	return order, nil
 }
 
-func (o *OrderRepo) ChangeOrderStatus(ctx context.Context, order Entities.Order, oid string) (Entities.Order, error) {
-	var existingOrder Entities.Order
+func (o *OrderRepo) ChangeOrderStatus(ctx context.Context, order Order.Order, oid string) (Order.Order, error) {
+	ctx, span := tracer.Start(ctx, "ChangeOrderStatus_Repo")
+	defer span.End()
+
+	var existingOrder Order.Order
 
 	err := o.Db.First(&existingOrder, "o_id = ?", oid).Error
 	if err != nil {
-		return Entities.Order{}, err
+		return Order.Order{}, err
 	}
 
 	existingOrder.OStatus = order.OStatus

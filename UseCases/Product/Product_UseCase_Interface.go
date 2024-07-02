@@ -1,11 +1,17 @@
 package Product
 
-import "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+import (
+	"context"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Product"
+	"go.opentelemetry.io/otel"
+)
 
 type IProductUseCase interface {
-	GetAllProducts() ([]Entities.Product, error)
-	GetProductById(productId string) (Entities.Product, error)
-	CreateProduct(product Entities.Product) (Entities.Product, error)
-	UpdateProduct(product Entities.Product, productId string) (Entities.Product, error)
-	DeleteProductById(productId string) error
+	GetAllProducts(ctx context.Context) ([]Product.Product, error)
+	GetProductById(ctx context.Context, productId string) (Product.Product, error)
+	CreateProduct(ctx context.Context, product Product.Product) (Product.Product, error)
+	UpdateProduct(ctx context.Context, product Product.Product, productId string) (Product.Product, error)
+	DeleteProductById(ctx context.Context, productId string) error
 }
+
+var tracer = otel.Tracer("Product_UseCase")

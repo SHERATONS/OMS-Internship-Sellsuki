@@ -1,6 +1,9 @@
 package Product
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"go.opentelemetry.io/otel"
+)
 
 type IProductHandler interface {
 	GetAllProducts(c *fiber.Ctx) error
@@ -9,3 +12,5 @@ type IProductHandler interface {
 	UpdateProductById(c *fiber.Ctx) error
 	DeleteProductById(c *fiber.Ctx) error
 }
+
+var tracer = otel.Tracer("Product_Handler")

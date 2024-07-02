@@ -3,7 +3,7 @@ package Stock
 import (
 	"context"
 	"errors"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Stock"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
 	"log"
@@ -13,11 +13,11 @@ type StockRepo struct {
 	Db *gorm.DB
 }
 
-func (s *StockRepo) GetAllStocks(ctx context.Context) ([]Entities.Stock, error) {
-	//_, span := Stracer.Start(ctx, "GetAllStocks")
-	//defer span.End()
+func (s *StockRepo) GetAllStocks(ctx context.Context) ([]Stock.Stock, error) {
+	ctx, span := tracer.Start(ctx, "GetAllStocks_Repo")
+	defer span.End()
 
-	var stocks []Entities.Stock
+	var stocks []Stock.Stock
 
 	err := s.Db.Order("CAST(s_id AS INTEGER)").Find(&stocks).Error
 	if err != nil {
@@ -28,8 +28,11 @@ func (s *StockRepo) GetAllStocks(ctx context.Context) ([]Entities.Stock, error) 
 	return stocks, nil
 }
 
-func (s StockRepo) GetStockByID(ctx context.Context, stockId string) (Entities.Stock, error) {
-	var stock Entities.Stock
+func (s StockRepo) GetStockByID(ctx context.Context, stockId string) (Stock.Stock, error) {
+	ctx, span := tracer.Start(ctx, "GetStockByID_Repo")
+	defer span.End()
+
+	var stock Stock.Stock
 
 	err := s.Db.Where("s_id = ?", stockId).First(&stock).Error
 	if err != nil {
@@ -39,7 +42,10 @@ func (s StockRepo) GetStockByID(ctx context.Context, stockId string) (Entities.S
 	return stock, nil
 }
 
-func (s StockRepo) CreateStock(ctx context.Context, Stock Entities.Stock) (Entities.Stock, error) {
+func (s StockRepo) CreateStock(ctx context.Context, Stock Stock.Stock) (Stock.Stock, error) {
+	ctx, span := tracer.Start(ctx, "CreateStock_Repo")
+	defer span.End()
+
 	err := s.Db.Create(&Stock).Error
 	if err != nil {
 		return Stock, errors.New("failed to create stock")
@@ -48,7 +54,10 @@ func (s StockRepo) CreateStock(ctx context.Context, Stock Entities.Stock) (Entit
 	return Stock, nil
 }
 
-func (s StockRepo) UpdateStock(ctx context.Context, Stock Entities.Stock, stockId string) (Entities.Stock, error) {
+func (s StockRepo) UpdateStock(ctx context.Context, Stock Stock.Stock, stockId string) (Stock.Stock, error) {
+	ctx, span := tracer.Start(ctx, "UpdateStock_Repo")
+	defer span.End()
+
 	if Stock.SQuantity < 0 {
 		return Stock, errors.New("stock quantity is negative")
 	}
@@ -62,7 +71,10 @@ func (s StockRepo) UpdateStock(ctx context.Context, Stock Entities.Stock, stockI
 }
 
 func (s StockRepo) DeleteStock(ctx context.Context, stockId string) error {
-	err := s.Db.Where("s_id = ?", stockId).Delete(&Entities.Stock{}).Error
+	ctx, span := tracer.Start(ctx, "DeleteStock_Repo")
+	defer span.End()
+
+	err := s.Db.Where("s_id = ?", stockId).Delete(&Stock.Stock{}).Error
 	if err != nil {
 		return errors.New("failed to delete stock")
 	}

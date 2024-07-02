@@ -1,6 +1,9 @@
 package Stock
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"go.opentelemetry.io/otel"
+)
 
 type IStockHandler interface {
 	GetAllStock(c *fiber.Ctx) error
@@ -9,3 +12,5 @@ type IStockHandler interface {
 	UpdateStock(c *fiber.Ctx) error
 	DeleteStock(c *fiber.Ctx) error
 }
+
+var tracer = otel.Tracer("Stock_Handler")

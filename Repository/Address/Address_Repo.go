@@ -3,10 +3,9 @@ package Address
 import (
 	"context"
 	"errors"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Address"
 	"log"
 
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
 )
@@ -15,11 +14,11 @@ type AddressRepo struct {
 	Db *gorm.DB
 }
 
-func (a AddressRepo) GetAddressByCity(ctx context.Context, city string) (Entities.Address, error) {
-	ctx, span := Repository.tracer.Start(ctx, "GetAddressByCity_Repo")
+func (a AddressRepo) GetAddressByCity(ctx context.Context, city string) (Address.Address, error) {
+	ctx, span := tracer.Start(ctx, "GetAddressByCity_Repo")
 	defer span.End()
 
-	var address Entities.Address
+	var address Address.Address
 	err := a.Db.Where("city = ?", city).First(&address).Error
 	if err != nil {
 		return address, errors.New("address not found")
@@ -28,7 +27,10 @@ func (a AddressRepo) GetAddressByCity(ctx context.Context, city string) (Entitie
 	return address, nil
 }
 
-func (a AddressRepo) CreateAddress(ctx context.Context, address Entities.Address) (Entities.Address, error) {
+func (a AddressRepo) CreateAddress(ctx context.Context, address Address.Address) (Address.Address, error) {
+	ctx, span := tracer.Start(ctx, "CreateAddress_Repo")
+	defer span.End()
+
 	err := a.Db.Create(&address).Error
 	if err != nil {
 		return address, errors.New("failed to create address")
@@ -37,7 +39,10 @@ func (a AddressRepo) CreateAddress(ctx context.Context, address Entities.Address
 	return address, nil
 }
 
-func (a AddressRepo) UpdateAddress(ctx context.Context, address Entities.Address, city string) (Entities.Address, error) {
+func (a AddressRepo) UpdateAddress(ctx context.Context, address Address.Address, city string) (Address.Address, error) {
+	ctx, span := tracer.Start(ctx, "UpdateAddress_Repo")
+	defer span.End()
+
 	err := a.Db.Where("city = ?", city).Save(&address).Error
 	if err != nil {
 		return address, errors.New("failed to update address")
@@ -47,7 +52,10 @@ func (a AddressRepo) UpdateAddress(ctx context.Context, address Entities.Address
 }
 
 func (a AddressRepo) DeleteAddress(ctx context.Context, city string) error {
-	err := a.Db.Where("city = ?", city).Delete(&Entities.Address{}).Error
+	ctx, span := tracer.Start(ctx, "DeleteAddress_Repo")
+	defer span.End()
+
+	err := a.Db.Where("city = ?", city).Delete(&Address.Address{}).Error
 	if err != nil {
 		return errors.New("failed to delete address")
 	}

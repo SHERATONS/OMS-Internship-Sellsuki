@@ -1,4 +1,4 @@
-package Entities
+package TransactionID
 
 import (
 	"crypto/sha1"
@@ -23,8 +23,8 @@ func (order *TransactionID) GenerateTransactionID(orderPrice float64) string {
 	return fmt.Sprintf("%x", hash.Sum(nil))
 }
 
-func ValidateTDestination(rawData map[string]interface{}) error {
-	if Destination, ok := rawData["TDestination"].(string); ok {
+func (order *TransactionID) ValidateTDestination(rawData map[string]interface{}) error {
+	if Destination, ok := rawData["TDestination"]; ok {
 		if reflect.TypeOf(Destination).Kind() != reflect.String {
 			return errors.New("destination Must Be a String")
 		}
@@ -35,8 +35,8 @@ func ValidateTDestination(rawData map[string]interface{}) error {
 	return nil
 }
 
-func ValidateProductList(rawData map[string]interface{}) error {
-	if Product, ok := rawData["TProductList"].(string); ok {
+func (order *TransactionID) ValidateProductList(rawData map[string]interface{}) error {
+	if Product, ok := rawData["TProductList"]; ok {
 		if reflect.TypeOf(Product).Kind() != reflect.String {
 			return errors.New("product Must Be a String")
 		}

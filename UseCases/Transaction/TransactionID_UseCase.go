@@ -1,8 +1,9 @@
 package Transaction
 
 import (
+	"context"
 	"errors"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/TransactionID"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository/Address"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository/Product"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository/Transaction"
@@ -17,15 +18,24 @@ type TransactionIDUseCase struct {
 	RepoAddress Address.IAddressRepo
 }
 
-func (o TransactionIDUseCase) GetAllTransactionIDs() ([]Entities.TransactionID, error) {
-	return o.Repo.GetAllTransactionIDs()
+func (o TransactionIDUseCase) GetAllTransactionIDs(ctx context.Context) ([]TransactionID.TransactionID, error) {
+	ctx, span := tracer.Start(ctx, "GetAllTransactionIDs_UseCase")
+	defer span.End()
+
+	return o.Repo.GetAllTransactionIDs(ctx)
 }
 
-func (o TransactionIDUseCase) GetOrderByTransactionID(transactionID string) (Entities.TransactionID, error) {
-	return o.Repo.GetOrderByTransactionID(transactionID)
+func (o TransactionIDUseCase) GetOrderByTransactionID(ctx context.Context, transactionID string) (TransactionID.TransactionID, error) {
+	ctx, span := tracer.Start(ctx, "GetOrderByTransactionID_UseCase")
+	defer span.End()
+
+	return o.Repo.GetOrderByTransactionID(ctx, transactionID)
 }
 
-func (o TransactionIDUseCase) CreateTransactionID(transactionInfo Entities.TransactionID) (Entities.TransactionID, error) {
+func (o TransactionIDUseCase) CreateTransactionID(ctx context.Context, transactionInfo TransactionID.TransactionID) (TransactionID.TransactionID, error) {
+	ctx, span := tracer.Start(ctx, "CreateTransactionID_UseCase")
+	defer span.End()
+
 	var totalPrice float64
 	var tempProductList []string
 
@@ -52,7 +62,7 @@ func (o TransactionIDUseCase) CreateTransactionID(transactionInfo Entities.Trans
 
 			tempProductList = append(tempProductList, PID)
 
-			if temp, err := o.RepoProduct.GetProductByID(PID); err != nil {
+			if temp, err := o.RepoProduct.GetProductByID(ctx, PID); err != nil {
 				return transactionInfo, errors.New("product Id Not Found")
 			} else {
 				totalPrice += temp.PPrice * float64(PQuantity)
@@ -67,7 +77,7 @@ func (o TransactionIDUseCase) CreateTransactionID(transactionInfo Entities.Trans
 		return transactionInfo, errors.New("invalid Destination")
 	}
 
-	address, err := o.RepoAddress.GetAddressByCity(tempAddress)
+	address, err := o.RepoAddress.GetAddressByCity(ctx, tempAddress)
 	if err != nil {
 		return transactionInfo, errors.New("address City Not Found")
 	}
@@ -77,16 +87,19 @@ func (o TransactionIDUseCase) CreateTransactionID(transactionInfo Entities.Trans
 	transactionInfo.TPrice = totalPrice
 	transactionInfo.TID = transactionInfo.GenerateTransactionID(totalPrice)
 
-	return o.Repo.CreateTransactionID(transactionInfo)
+	return o.Repo.CreateTransactionID(ctx, transactionInfo)
 }
 
-func (o TransactionIDUseCase) DeleteTransactionID(transactionID string) error {
-	_, err := o.Repo.GetOrderByTransactionID(transactionID)
+func (o TransactionIDUseCase) DeleteTransactionID(ctx context.Context, transactionID string) error {
+	ctx, span := tracer.Start(ctx, "DeleteTransactionID_UseCase")
+	defer span.End()
+
+	_, err := o.Repo.GetOrderByTransactionID(ctx, transactionID)
 	if err != nil {
 		return err
 	}
 
-	return o.Repo.DeleteTransactionID(transactionID)
+	return o.Repo.DeleteTransactionID(ctx, transactionID)
 }
 
 func NewTransactionIDUseCase(repo Transaction.ITransactionIDRepo, repoProduct Product.IProductRepo, repoAddress Address.IAddressRepo) ITransactionIDUseCase {
