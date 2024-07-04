@@ -18,8 +18,8 @@ type Order struct {
 }
 
 func (o *Order) ValidateTranID(rawData map[string]interface{}) error {
-	if TranID, ok := rawData["OTranID"].(string); ok {
-		if reflect.TypeOf(TranID).Kind() != reflect.String {
+	if tranID, ok := rawData["OTranID"].(string); ok {
+		if reflect.TypeOf(tranID).Kind() != reflect.String {
 			return errors.New("transaction ID Must Be a String")
 		}
 	} else {
@@ -30,8 +30,8 @@ func (o *Order) ValidateTranID(rawData map[string]interface{}) error {
 }
 
 func (o *Order) ValidateOrderStatus(rawData map[string]interface{}) error {
-	if OStatus, ok := rawData["OStatus"].(string); ok {
-		if reflect.TypeOf(OStatus).Kind() != reflect.String {
+	if oStatus, ok := rawData["OStatus"].(string); ok {
+		if reflect.TypeOf(oStatus).Kind() != reflect.String {
 			return errors.New("order Status Must Be String")
 		}
 	} else {
