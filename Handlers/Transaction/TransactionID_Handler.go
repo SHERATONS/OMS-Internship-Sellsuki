@@ -3,12 +3,12 @@ package Transaction
 import (
 	"encoding/json"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/TransactionID"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Transaction"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
 	"github.com/gofiber/fiber/v2"
 )
 
 type TransactionIDHandler struct {
-	UseCase Transaction.ITransactionIDUseCase
+	UseCase UseCases.ITransactionIDUseCase
 }
 
 func (o *TransactionIDHandler) GetAllTransactionIDs(c *fiber.Ctx) error {
@@ -97,6 +97,6 @@ func (o *TransactionIDHandler) DeleteTransactionID(c *fiber.Ctx) error {
 	})
 }
 
-func NewTransactionIDHandler(useCase Transaction.ITransactionIDUseCase) ITransactionIDHandler {
+func NewTransactionIDHandler(useCase UseCases.ITransactionIDUseCase) ITransactionIDHandler {
 	return &TransactionIDHandler{UseCase: useCase}
 }

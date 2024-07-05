@@ -24,8 +24,8 @@ func (order *TransactionID) GenerateTransactionID(orderPrice float64) string {
 }
 
 func (order *TransactionID) ValidateTDestination(rawData map[string]interface{}) error {
-	if Destination, ok := rawData["TDestination"]; ok {
-		if reflect.TypeOf(Destination).Kind() != reflect.String {
+	if destination, ok := rawData["TDestination"]; ok {
+		if reflect.TypeOf(destination).Kind() != reflect.String {
 			return errors.New("destination Must Be a String")
 		}
 	} else {
@@ -36,8 +36,8 @@ func (order *TransactionID) ValidateTDestination(rawData map[string]interface{})
 }
 
 func (order *TransactionID) ValidateProductList(rawData map[string]interface{}) error {
-	if Product, ok := rawData["TProductList"]; ok {
-		if reflect.TypeOf(Product).Kind() != reflect.String {
+	if product, ok := rawData["TProductList"]; ok {
+		if reflect.TypeOf(product).Kind() != reflect.String {
 			return errors.New("product Must Be a String")
 		}
 	} else {

@@ -3,13 +3,13 @@ package Address
 import (
 	"encoding/json"
 	Address2 "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Address"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Address"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
 	"github.com/gofiber/fiber/v2"
 	"net/url"
 )
 
 type AddressHandler struct {
-	UseCase Address.IAddressUseCase
+	UseCase UseCases.IAddressUseCase
 }
 
 func (a *AddressHandler) GetAddressByCity(c *fiber.Ctx) error {
@@ -18,12 +18,12 @@ func (a *AddressHandler) GetAddressByCity(c *fiber.Ctx) error {
 
 	city := c.Params("city")
 
-	NewCity, err := url.QueryUnescape(city)
+	newCity, err := url.QueryUnescape(city)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid City Parameter"})
 	}
 
-	address, err := a.UseCase.GetAddressByCity(ctx, NewCity)
+	address, err := a.UseCase.GetAddressByCity(ctx, newCity)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -120,12 +120,12 @@ func (a *AddressHandler) UpdateAddress(c *fiber.Ctx) error {
 
 	city := c.Params("city")
 
-	NewCity, err := url.QueryUnescape(city)
+	newCity, err := url.QueryUnescape(city)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid City Parameter"})
 	}
 
-	updateAddress, err = a.UseCase.UpdateAddress(ctx, updateAddress, NewCity)
+	updateAddress, err = a.UseCase.UpdateAddress(ctx, updateAddress, newCity)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -139,22 +139,22 @@ func (a *AddressHandler) DeleteAddress(c *fiber.Ctx) error {
 
 	city := c.Params("city")
 
-	NewCity, err := url.QueryUnescape(city)
+	newCity, err := url.QueryUnescape(city)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid City Parameter"})
 	}
 
-	err = a.UseCase.DeleteAddress(ctx, NewCity)
+	err = a.UseCase.DeleteAddress(ctx, newCity)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Address successfully deleted",
-		"city":    NewCity,
+		"city":    newCity,
 	})
 }
 
-func NewAddressHandler(useCase Address.IAddressUseCase) IAddressHandler {
+func NewAddressHandler(useCase UseCases.IAddressUseCase) IAddressHandler {
 	return &AddressHandler{UseCase: useCase}
 }

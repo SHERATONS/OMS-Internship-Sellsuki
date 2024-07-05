@@ -1,4 +1,4 @@
-package Product
+package UseCases
 
 import (
 	"context"
@@ -14,4 +14,4 @@ type IProductUseCase interface {
 	DeleteProductById(ctx context.Context, productId string) error
 }
 
-var tracer = otel.Tracer("Product_UseCase")
+var tracerProduct = otel.Tracer("Product_UseCase")

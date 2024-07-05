@@ -22,10 +22,10 @@ func (product *Product) ValidateProductID(rawData map[string]interface{}) error 
 		if reflect.TypeOf(pId).Kind() != reflect.String {
 			return errors.New("product ID Must Be String")
 		} else {
-			CheckIdString := pId.(string)
-			if CheckIdInt, err := strconv.Atoi(CheckIdString); err != nil {
+			checkIdString := pId.(string)
+			if checkIdInt, err := strconv.Atoi(checkIdString); err != nil {
 				return errors.New("product ID Must Be a Number")
-			} else if CheckIdInt <= 0 {
+			} else if checkIdInt <= 0 {
 				return errors.New("product ID Must Be Greater than 0")
 			}
 		}
@@ -52,8 +52,8 @@ func (product *Product) ValidateProductPrice(rawData map[string]interface{}) err
 		if reflect.TypeOf(pPrice).Kind() != reflect.Float64 {
 			return errors.New("product Price Must Be Float")
 		} else {
-			CheckPriceFloat := pPrice.(float64)
-			if CheckPriceFloat <= 0 {
+			checkPriceFloat := pPrice.(float64)
+			if checkPriceFloat <= 0 {
 				return errors.New("product Price Must Be Greater than 0")
 			}
 		}

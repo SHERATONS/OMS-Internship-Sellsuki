@@ -1,4 +1,4 @@
-package Transaction
+package UseCases
 
 import (
 	"context"
@@ -19,21 +19,21 @@ type TransactionIDUseCase struct {
 }
 
 func (o TransactionIDUseCase) GetAllTransactionIDs(ctx context.Context) ([]TransactionID.TransactionID, error) {
-	ctx, span := tracer.Start(ctx, "GetAllTransactionIDs_UseCase")
+	ctx, span := tracerTransactionID.Start(ctx, "GetAllTransactionIDs_UseCase")
 	defer span.End()
 
 	return o.Repo.GetAllTransactionIDs(ctx)
 }
 
 func (o TransactionIDUseCase) GetOrderByTransactionID(ctx context.Context, transactionID string) (TransactionID.TransactionID, error) {
-	ctx, span := tracer.Start(ctx, "GetOrderByTransactionID_UseCase")
+	ctx, span := tracerTransactionID.Start(ctx, "GetOrderByTransactionID_UseCase")
 	defer span.End()
 
 	return o.Repo.GetOrderByTransactionID(ctx, transactionID)
 }
 
 func (o TransactionIDUseCase) CreateTransactionID(ctx context.Context, transactionInfo TransactionID.TransactionID) (TransactionID.TransactionID, error) {
-	ctx, span := tracer.Start(ctx, "CreateTransactionID_UseCase")
+	ctx, span := tracerTransactionID.Start(ctx, "CreateTransactionID_UseCase")
 	defer span.End()
 
 	var totalPrice float64
@@ -91,7 +91,7 @@ func (o TransactionIDUseCase) CreateTransactionID(ctx context.Context, transacti
 }
 
 func (o TransactionIDUseCase) DeleteTransactionID(ctx context.Context, transactionID string) error {
-	ctx, span := tracer.Start(ctx, "DeleteTransactionID_UseCase")
+	ctx, span := tracerTransactionID.Start(ctx, "DeleteTransactionID_UseCase")
 	defer span.End()
 
 	_, err := o.Repo.GetOrderByTransactionID(ctx, transactionID)

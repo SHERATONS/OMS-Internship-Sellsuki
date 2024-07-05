@@ -1,4 +1,4 @@
-package Stock
+package UseCases
 
 import (
 	"context"
@@ -14,53 +14,53 @@ type StockUseCase struct {
 }
 
 func (s StockUseCase) GetAllStocks(ctx context.Context) ([]Stock2.Stock, error) {
-	ctx, span := tracer.Start(ctx, "GetAllStocks_UseCase")
+	ctx, span := tracerStock.Start(ctx, "GetAllStocks_UseCase")
 	defer span.End()
 
 	return s.Repo.GetAllStocks(ctx)
 }
 
 func (s StockUseCase) GetStockByID(ctx context.Context, stockID string) (Stock2.Stock, error) {
-	ctx, span := tracer.Start(ctx, "GetStockByID_UseCase")
+	ctx, span := tracerStock.Start(ctx, "GetStockByID_UseCase")
 	defer span.End()
 	return s.Repo.GetStockByID(ctx, stockID)
 }
 
-func (s StockUseCase) CreateStock(ctx context.Context, Stock Stock2.Stock) (Stock2.Stock, error) {
-	ctx, span := tracer.Start(ctx, "CreateStock_UseCase")
+func (s StockUseCase) CreateStock(ctx context.Context, stock Stock2.Stock) (Stock2.Stock, error) {
+	ctx, span := tracerStock.Start(ctx, "CreateStock_UseCase")
 	defer span.End()
 
-	_, err := s.RepoProduct.GetProductByID(ctx, Stock.SID)
+	_, err := s.RepoProduct.GetProductByID(ctx, stock.SID)
 	if err != nil {
-		return Stock, err
+		return stock, err
 	}
 
-	Stock.SUpdated = time.Now()
+	stock.SUpdated = time.Now()
 
-	return s.Repo.CreateStock(ctx, Stock)
+	return s.Repo.CreateStock(ctx, stock)
 }
 
-func (s StockUseCase) UpdateStock(ctx context.Context, Stock Stock2.Stock, stockID string) (Stock2.Stock, error) {
-	ctx, span := tracer.Start(ctx, "UpdateStock_UseCase")
+func (s StockUseCase) UpdateStock(ctx context.Context, stock Stock2.Stock, stockID string) (Stock2.Stock, error) {
+	ctx, span := tracerStock.Start(ctx, "UpdateStock_UseCase")
 	defer span.End()
 
 	_, err := s.Repo.GetStockByID(ctx, stockID)
 	if err != nil {
-		return Stock, err
+		return stock, err
 	}
 
 	_, err = s.RepoProduct.GetProductByID(ctx, stockID)
 	if err != nil {
-		return Stock, err
+		return stock, err
 	}
 
-	Stock.SUpdated = time.Now()
+	stock.SUpdated = time.Now()
 
-	return s.Repo.UpdateStock(ctx, Stock, stockID)
+	return s.Repo.UpdateStock(ctx, stock, stockID)
 }
 
 func (s StockUseCase) DeleteStock(ctx context.Context, stockID string) error {
-	ctx, span := tracer.Start(ctx, "DeleteStock_UseCase")
+	ctx, span := tracerStock.Start(ctx, "DeleteStock_UseCase")
 	defer span.End()
 
 	_, err := s.Repo.GetStockByID(ctx, stockID)

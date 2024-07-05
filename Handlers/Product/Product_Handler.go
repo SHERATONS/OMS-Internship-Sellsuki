@@ -3,12 +3,12 @@ package Product
 import (
 	"encoding/json"
 	Product2 "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Product"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Product"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
 	"github.com/gofiber/fiber/v2"
 )
 
 type ProductHandler struct {
-	UseCase Product.IProductUseCase
+	UseCase UseCases.IProductUseCase
 }
 
 func (s *ProductHandler) GetProductByID(c *fiber.Ctx) error {
@@ -160,7 +160,7 @@ func (s *ProductHandler) GetAllProducts(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"products": products})
 }
 
-func NewProductHandler(useCase Product.IProductUseCase) IProductHandler {
+func NewProductHandler(useCase UseCases.IProductUseCase) IProductHandler {
 	return &ProductHandler{
 		UseCase: useCase,
 	}

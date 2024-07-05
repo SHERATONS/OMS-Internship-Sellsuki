@@ -1,4 +1,4 @@
-package Transaction
+package UseCases
 
 import (
 	"context"
@@ -13,4 +13,4 @@ type ITransactionIDUseCase interface {
 	DeleteTransactionID(ctx context.Context, transactionID string) error
 }
 
-var tracer = otel.Tracer("TransactionID_UseCase")
+var tracerTransactionID = otel.Tracer("TransactionID_UseCase")

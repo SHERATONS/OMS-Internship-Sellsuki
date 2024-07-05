@@ -2,12 +2,12 @@ package Order
 
 import (
 	Order2 "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Order"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Order"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
 	"github.com/gofiber/fiber/v2"
 )
 
 type OrderHandler struct {
-	UseCase Order.IOrderUseCase
+	UseCase UseCases.IOrderUseCase
 }
 
 func (o *OrderHandler) GetOrderById(c *fiber.Ctx) error {
@@ -76,11 +76,11 @@ func (o *OrderHandler) ChangeOrderStatus(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": validationError})
 	}
 
-	OrderStatus := rawData["OStatus"].(string)
+	orderStatus := rawData["OStatus"].(string)
 
-	OrderID := c.Params("oid")
+	orderID := c.Params("oid")
 
-	order, err := o.UseCase.ChangeOrderStatus(ctx, OrderID, OrderStatus)
+	order, err := o.UseCase.ChangeOrderStatus(ctx, orderID, orderStatus)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -88,6 +88,6 @@ func (o *OrderHandler) ChangeOrderStatus(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"order": order})
 }
 
-func NewOrderHandler(useCase Order.IOrderUseCase) IOrderHandler {
+func NewOrderHandler(useCase UseCases.IOrderUseCase) IOrderHandler {
 	return &OrderHandler{UseCase: useCase}
 }

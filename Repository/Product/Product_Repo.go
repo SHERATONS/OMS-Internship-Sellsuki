@@ -7,6 +7,7 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
 	"log"
+	"time"
 )
 
 type ProductRepo struct {
@@ -21,20 +22,21 @@ func (p *ProductRepo) GetProductByID(ctx context.Context, productID string) (Pro
 
 	err := p.Db.Where("p_id = ?", productID).First(&product).Error
 	if err != nil {
-		//span.RecordError(err)
 		return product, errors.New("product not found")
 	}
 
 	return product, nil
 }
 
-func (p *ProductRepo) UpdateProduct(ctx context.Context, product Product.Product, productId string) (Product.Product, error) {
+func (p *ProductRepo) UpdateProduct(ctx context.Context, product Product.Product, productId string, tempProduct Product.Product) (Product.Product, error) {
 	ctx, span := tracer.Start(ctx, "UpdateProduct_Repo")
 	defer span.End()
 
+	product.PCreated = tempProduct.PCreated
+	product.PUpdated = time.Now()
+
 	err := p.Db.Where("p_id = ?", productId).Save(&product).Error
 	if err != nil {
-		//span.RecordError(err)
 		return product, errors.New("failed to Update Product")
 	}
 
@@ -47,7 +49,6 @@ func (p *ProductRepo) DeleteProduct(ctx context.Context, productID string) error
 
 	err := p.Db.Where("p_id = ?", productID).Delete(&Product.Product{}).Error
 	if err != nil {
-		//span.RecordError(err)
 		return errors.New("failed to Delete Product")
 	}
 
@@ -58,9 +59,11 @@ func (p *ProductRepo) CreateProduct(ctx context.Context, product Product.Product
 	ctx, span := tracer.Start(ctx, "CreateProduct_Repo")
 	defer span.End()
 
+	product.PCreated = time.Now()
+	product.PUpdated = time.Now()
+
 	err := p.Db.Create(&product).Error
 	if err != nil {
-		//span.RecordError(err)
 		return product, errors.New("failed to Create Product")
 	}
 
@@ -75,7 +78,6 @@ func (p *ProductRepo) GetAllProducts(ctx context.Context) ([]Product.Product, er
 
 	err := p.Db.Order("CAST(p_id AS INTEGER)").Find(&products).Error
 	if err != nil {
-		//span.RecordError(err)
 		return products, err
 	}
 

@@ -1,4 +1,4 @@
-package Order
+package UseCases
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type OrderUseCase struct {
@@ -21,41 +20,41 @@ type OrderUseCase struct {
 }
 
 func (o OrderUseCase) GetOrderById(ctx context.Context, orderID string) (Order2.Order, error) {
-	ctx, span := tracer.Start(ctx, "GetOrderById_UseCase")
+	ctx, span := tracerOrder.Start(ctx, "GetOrderById_UseCase")
 	defer span.End()
 
 	return o.Repo.GetOrderByID(ctx, orderID)
 }
 
-func (o OrderUseCase) CreateOrder(ctx context.Context, TransactionID string) (Order2.Order, error) {
-	ctx, span := tracer.Start(ctx, "CreateOrder_UseCase")
+func (o OrderUseCase) CreateOrder(ctx context.Context, transactionID string) (Order2.Order, error) {
+	ctx, span := tracerOrder.Start(ctx, "CreateOrder_UseCase")
 	defer span.End()
 
-	TempOrder, err := o.RepoTransactionID.GetOrderByTransactionID(ctx, TransactionID)
+	tempOrder, err := o.RepoTransactionID.GetOrderByTransactionID(ctx, transactionID)
 	if err != nil {
 		return Order2.Order{}, err
 	}
 
-	productList := strings.Split(TempOrder.TProductList, ", ")
+	productList := strings.Split(tempOrder.TProductList, ", ")
 	for _, product := range productList {
 		parts := strings.Split(product, ":")
-		PID := strings.TrimSpace(parts[0])
-		PQuantity, _ := strconv.ParseFloat(strings.TrimSpace(parts[1]), 64)
+		pID := strings.TrimSpace(parts[0])
+		pQuantity, _ := strconv.ParseFloat(strings.TrimSpace(parts[1]), 64)
 
-		if _, err := o.RepoStock.GetStockByID(ctx, PID); err != nil {
+		if _, err := o.RepoStock.GetStockByID(ctx, pID); err != nil {
 			return Order2.Order{}, err
 		}
 
-		StockQuantity, _ := o.RepoStock.GetStockByID(ctx, PID)
-		NewQuantity := StockQuantity.SQuantity - PQuantity
+		stockQuantity, _ := o.RepoStock.GetStockByID(ctx, pID)
+		newQuantity := stockQuantity.SQuantity - pQuantity
 
-		TempStock := Stock2.Stock{
-			SID:       PID,
-			SQuantity: NewQuantity,
-			SUpdated:  time.Now(),
+		tempStock := Stock2.Stock{
+			SID:       pID,
+			SQuantity: newQuantity,
+			//SUpdated:  time.Now(),
 		}
 
-		_, err := o.RepoStock.UpdateStock(ctx, TempStock, PID)
+		_, err := o.RepoStock.UpdateStock(ctx, tempStock, pID)
 		if err != nil {
 			return Order2.Order{}, err
 		}
@@ -64,31 +63,31 @@ func (o OrderUseCase) CreateOrder(ctx context.Context, TransactionID string) (Or
 	var createOrder Order2.Order
 
 	createOrder.OID = uuid.New()
-	createOrder.OTranID = TempOrder.TID
+	createOrder.OTranID = tempOrder.TID
 	createOrder.OPaid = false
-	createOrder.ODestination = TempOrder.TDestination
-	createOrder.OPrice = TempOrder.TPrice
+	createOrder.ODestination = tempOrder.TDestination
+	createOrder.OPrice = tempOrder.TPrice
 	createOrder.OStatus = "New"
-	createOrder.OCreated = time.Now()
+	//createOrder.OCreated = time.Now()
 
 	return o.Repo.CreateOrder(ctx, createOrder)
 }
 
 func (o OrderUseCase) ChangeOrderStatus(ctx context.Context, orderID string, orderStatus string) (Order2.Order, error) {
-	ctx, span := tracer.Start(ctx, "ChangeOrderStatus_UseCase")
+	ctx, span := tracerOrder.Start(ctx, "ChangeOrderStatus_UseCase")
 	defer span.End()
 
-	TempOrder, err := o.GetOrderById(ctx, orderID)
+	tempOrder, err := o.GetOrderById(ctx, orderID)
 	if err != nil {
-		return TempOrder, errors.New("order ID Not Found")
+		return tempOrder, errors.New("order ID Not Found")
 	}
 
-	TempOrder, err = TempOrder.ChangeStatus(TempOrder, orderStatus)
+	tempOrder, err = tempOrder.ChangeStatus(tempOrder, orderStatus)
 	if err != nil {
-		return TempOrder, err
+		return tempOrder, err
 	}
 
-	return o.Repo.ChangeOrderStatus(ctx, TempOrder, orderID)
+	return o.Repo.ChangeOrderStatus(ctx, tempOrder, orderID)
 }
 
 func NewOrderUseCase(Repo Order.IOrderRepo, RepoStock Stock.IStockRepo, RepoTransactionID Transaction.ITransactionIDRepo) IOrderUseCase {

@@ -25,7 +25,7 @@ func (m *MockProductRepo) CreateProduct(ctx context.Context, product Product.Pro
 	return args.Get(0).(Product.Product), args.Error(1)
 }
 
-func (m *MockProductRepo) UpdateProduct(ctx context.Context, product Product.Product, productID string) (Product.Product, error) {
+func (m *MockProductRepo) UpdateProduct(ctx context.Context, product Product.Product, productID string, tempProduct Product.Product) (Product.Product, error) {
 	args := m.Called(ctx, product, productID)
 	return args.Get(0).(Product.Product), args.Error(1)
 }

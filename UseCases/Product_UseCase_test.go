@@ -1,10 +1,9 @@
-package Product
+package UseCases
 
 import (
 	"context"
 	"errors"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Stock"
-	"log"
 	"testing"
 	"time"
 
@@ -18,6 +17,7 @@ func setupProductUseCase() (*MockRepository.MockProductRepo, *MockRepository.Moc
 	mockProductRepo := new(MockRepository.MockProductRepo)
 	mockStockRepo := new(MockRepository.MockStockRepo)
 	useCase := NewProductUseCase(mockProductRepo, mockStockRepo)
+
 	return mockProductRepo, mockStockRepo, useCase
 }
 
@@ -63,17 +63,17 @@ func TestProductUseCase(t *testing.T) {
 		mockProductRepo, _, useCase := setupProductUseCase()
 
 		sampleProduct := Product.Product{
-			PID:    "1",
-			PName:  "Sample Product",
-			PPrice: 100.0,
-			PDesc:  "Sample Description",
+			PID:      "1",
+			PName:    "Sample Product",
+			PPrice:   100.0,
+			PDesc:    "Sample Description",
+			PCreated: time.Now(),
+			PUpdated: time.Now(),
 		}
 
 		mockProductRepo.On("CreateProduct", mock.Anything, sampleProduct).Return(sampleProduct, nil)
 
 		result, err := useCase.CreateProduct(ctx, sampleProduct)
-
-		log.Fatal(result)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
@@ -91,7 +91,6 @@ func TestProductUseCase(t *testing.T) {
 			PDesc:  "Sample Description",
 		}
 
-		// Mock return values
 		mockProductRepo.On("CreateProduct", mock.Anything, sampleProduct).Return(Product.Product{}, errors.New("failed to create product"))
 
 		result, err := useCase.CreateProduct(ctx, sampleProduct)
@@ -128,20 +127,19 @@ func TestProductUseCase(t *testing.T) {
 		mockProductRepo, _, useCase := setupProductUseCase()
 
 		updatedProduct := Product.Product{
-			PID:      "1",
-			PName:    "Updated Product",
-			PPrice:   150.0,
-			PDesc:    "Updated Description",
-			PCreated: time.Now().Add(-24 * time.Hour),
-			PUpdated: time.Now(),
+			PID:    "1",
+			PName:  "Updated Product",
+			PPrice: 150.0,
+			PDesc:  "Updated Description",
 		}
 
-		mockProductRepo.On("GetProductByID", mock.Anything, "1").Return(Product.Product{}, assert.AnError)
-		mockProductRepo.On("UpdateProduct", mock.Anything, updatedProduct, "1").Return(Product.Product{}, assert.AnError)
+		mockProductRepo.On("GetProductByID", mock.Anything, "1").Return(updatedProduct, nil)
+		mockProductRepo.On("UpdateProduct", mock.Anything, updatedProduct, "1").Return(Product.Product{}, errors.New("failed to Update Product"))
 
 		result, err := useCase.UpdateProduct(ctx, updatedProduct, "1")
 
 		assert.Error(t, err)
+		assert.Equal(t, "failed to Update Product", err.Error())
 		assert.Equal(t, Product.Product{}, result)
 		mockProductRepo.AssertExpectations(t)
 	})

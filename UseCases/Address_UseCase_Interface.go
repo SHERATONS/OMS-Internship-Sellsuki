@@ -1,4 +1,4 @@
-package Address
+package UseCases
 
 import (
 	"context"
@@ -13,4 +13,4 @@ type IAddressUseCase interface {
 	DeleteAddress(ctx context.Context, city string) error
 }
 
-var tracer = otel.Tracer("Address_UseCase")
+var tracerAddress = otel.Tracer("Address_UseCase")
