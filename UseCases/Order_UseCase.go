@@ -51,7 +51,6 @@ func (o OrderUseCase) CreateOrder(ctx context.Context, transactionID string) (Or
 		tempStock := Stock2.Stock{
 			SID:       pID,
 			SQuantity: newQuantity,
-			//SUpdated:  time.Now(),
 		}
 
 		_, err := o.RepoStock.UpdateStock(ctx, tempStock, pID)
@@ -68,7 +67,6 @@ func (o OrderUseCase) CreateOrder(ctx context.Context, transactionID string) (Or
 	createOrder.ODestination = tempOrder.TDestination
 	createOrder.OPrice = tempOrder.TPrice
 	createOrder.OStatus = "New"
-	//createOrder.OCreated = time.Now()
 
 	return o.Repo.CreateOrder(ctx, createOrder)
 }

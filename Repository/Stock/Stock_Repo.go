@@ -7,6 +7,7 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
 	"log"
+	"time"
 )
 
 type StockRepo struct {
@@ -45,6 +46,8 @@ func (s StockRepo) CreateStock(ctx context.Context, stock Stock.Stock) (Stock.St
 	ctx, span := tracer.Start(ctx, "CreateStock_Repo")
 	defer span.End()
 
+	stock.SUpdated = time.Now()
+
 	err := s.Db.Create(&stock).Error
 	if err != nil {
 		return stock, errors.New("failed to create stock")
@@ -60,6 +63,8 @@ func (s StockRepo) UpdateStock(ctx context.Context, stock Stock.Stock, stockId s
 	if stock.SQuantity < 0 {
 		return stock, errors.New("stock quantity is negative")
 	}
+
+	stock.SUpdated = time.Now()
 
 	err := s.Db.Where("s_id = ?", stockId).Save(&stock).Error
 	if err != nil {

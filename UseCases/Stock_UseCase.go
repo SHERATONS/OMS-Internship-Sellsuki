@@ -5,7 +5,6 @@ import (
 	Stock2 "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Stock"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository/Product"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository/Stock"
-	"time"
 )
 
 type StockUseCase struct {
@@ -23,6 +22,7 @@ func (s StockUseCase) GetAllStocks(ctx context.Context) ([]Stock2.Stock, error) 
 func (s StockUseCase) GetStockByID(ctx context.Context, stockID string) (Stock2.Stock, error) {
 	ctx, span := tracerStock.Start(ctx, "GetStockByID_UseCase")
 	defer span.End()
+
 	return s.Repo.GetStockByID(ctx, stockID)
 }
 
@@ -34,8 +34,6 @@ func (s StockUseCase) CreateStock(ctx context.Context, stock Stock2.Stock) (Stoc
 	if err != nil {
 		return stock, err
 	}
-
-	stock.SUpdated = time.Now()
 
 	return s.Repo.CreateStock(ctx, stock)
 }
@@ -53,8 +51,6 @@ func (s StockUseCase) UpdateStock(ctx context.Context, stock Stock2.Stock, stock
 	if err != nil {
 		return stock, err
 	}
-
-	stock.SUpdated = time.Now()
 
 	return s.Repo.UpdateStock(ctx, stock, stockID)
 }

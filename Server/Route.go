@@ -7,10 +7,10 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Handlers/Stock"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Handlers/Transaction"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/MiddleWare"
-	Address2 "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
+	UseCase "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
 )
 
-func (s *FiberServer) SetupRoute(uProduct Address2.IProductUseCase, uStock Address2.IStockUseCase, uAddress Address2.IAddressUseCase, uTransactionID Address2.ITransactionIDUseCase, uOrder Address2.IOrderUseCase) {
+func (s *FiberServer) SetupRoute(uProduct UseCase.IProductUseCase, uStock UseCase.IStockUseCase, uAddress UseCase.IAddressUseCase, uTransactionID UseCase.ITransactionIDUseCase, uOrder UseCase.IOrderUseCase) {
 	ProductHandler := Product.NewProductHandler(uProduct)
 	StockHandler := Stock.NewStockHandler(uStock)
 	AddressHandler := Address.NewAddressHandler(uAddress)
