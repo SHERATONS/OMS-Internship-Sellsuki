@@ -7,11 +7,7 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository/Product"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository/Stock"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Repository/Transaction"
-	Address2 "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Address"
-	Order2 "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Order"
-	Product2 "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Product"
-	Stock2 "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Stock"
-	Transaction2 "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Transaction"
+	UseCase "github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
 	"log"
 	"os"
 
@@ -43,11 +39,11 @@ func main() {
 	OrderRP := Order.NewOrderRepo(db)
 
 	// init use case
-	ProductUS := Product2.NewProductUseCase(ProductRP, StockRP)
-	StockUS := Stock2.NewStockUseCase(StockRP, ProductRP)
-	AddressUs := Address2.NewAddressUseCase(AddressRP)
-	TransactionIDUs := Transaction2.NewTransactionIDUseCase(TransactionIDRP, ProductRP, AddressRP)
-	OrderUS := Order2.NewOrderUseCase(OrderRP, StockRP, TransactionIDRP)
+	ProductUS := UseCase.NewProductUseCase(ProductRP, StockRP)
+	StockUS := UseCase.NewStockUseCase(StockRP, ProductRP)
+	AddressUs := UseCase.NewAddressUseCase(AddressRP)
+	TransactionIDUs := UseCase.NewTransactionIDUseCase(TransactionIDRP, ProductRP, AddressRP)
+	OrderUS := UseCase.NewOrderUseCase(OrderRP, StockRP, TransactionIDRP)
 
 	s := Server.NewFiberServer()
 	s.SetupRoute(ProductUS, StockUS, AddressUs, TransactionIDUs, OrderUS)

@@ -7,6 +7,7 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
 	"log"
+	"time"
 )
 
 type OrderRepo struct {
@@ -29,6 +30,8 @@ func (o *OrderRepo) GetOrderByID(ctx context.Context, orderId string) (Order.Ord
 func (o *OrderRepo) CreateOrder(ctx context.Context, order Order.Order) (Order.Order, error) {
 	ctx, span := tracer.Start(ctx, "CreateOrder_Repo")
 	defer span.End()
+
+	order.OCreated = time.Now()
 
 	err := o.Db.Create(&order).Error
 	if err != nil {

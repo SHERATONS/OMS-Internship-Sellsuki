@@ -3,12 +3,12 @@ package Stock
 import (
 	"encoding/json"
 	Stock2 "github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Stock"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases/Stock"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/UseCases"
 	"github.com/gofiber/fiber/v2"
 )
 
 type StockHandler struct {
-	UseCase Stock.IStockUseCase
+	UseCase UseCases.IStockUseCase
 }
 
 func (s *StockHandler) DeleteStock(c *fiber.Ctx) error {
@@ -31,6 +31,7 @@ func (s *StockHandler) DeleteStock(c *fiber.Ctx) error {
 func (s *StockHandler) UpdateStock(c *fiber.Ctx) error {
 	ctx, span := tracer.Start(c.UserContext(), "UpdateStock_Handler")
 	defer span.End()
+
 	var rawData map[string]interface{}
 	if err := c.BodyParser(&rawData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid Request Body"})
@@ -142,6 +143,6 @@ func (s *StockHandler) GetAllStock(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"stocks": stocks})
 }
 
-func NewStockHandler(useCase Stock.IStockUseCase) IStockHandler {
+func NewStockHandler(useCase UseCases.IStockUseCase) IStockHandler {
 	return &StockHandler{UseCase: useCase}
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Address"
 	"log"
+	"time"
 
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
@@ -31,6 +32,8 @@ func (a AddressRepo) CreateAddress(ctx context.Context, address Address.Address)
 	ctx, span := tracer.Start(ctx, "CreateAddress_Repo")
 	defer span.End()
 
+	address.AUpdated = time.Now()
+
 	err := a.Db.Create(&address).Error
 	if err != nil {
 		return address, errors.New("failed to create address")
@@ -42,6 +45,8 @@ func (a AddressRepo) CreateAddress(ctx context.Context, address Address.Address)
 func (a AddressRepo) UpdateAddress(ctx context.Context, address Address.Address, city string) (Address.Address, error) {
 	ctx, span := tracer.Start(ctx, "UpdateAddress_Repo")
 	defer span.End()
+
+	address.AUpdated = time.Now()
 
 	err := a.Db.Where("city = ?", city).Save(&address).Error
 	if err != nil {

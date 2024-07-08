@@ -1,4 +1,4 @@
-package Stock
+package UseCases
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 type IStockUseCase interface {
 	GetAllStocks(ctx context.Context) ([]Stock.Stock, error)
 	GetStockByID(ctx context.Context, stockId string) (Stock.Stock, error)
-	CreateStock(ctx context.Context, Stock Stock.Stock) (Stock.Stock, error)
-	UpdateStock(ctx context.Context, Stock Stock.Stock, stockId string) (Stock.Stock, error)
+	CreateStock(ctx context.Context, stock Stock.Stock) (Stock.Stock, error)
+	UpdateStock(ctx context.Context, stock Stock.Stock, stockId string) (Stock.Stock, error)
 	DeleteStock(ctx context.Context, stockId string) error
 }
 
-var tracer = otel.Tracer("Stock_UseCase")
+var tracerStock = otel.Tracer("Stock_UseCase")

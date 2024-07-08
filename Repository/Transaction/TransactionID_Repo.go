@@ -18,14 +18,14 @@ func (o TransactionIDRepo) GetAllTransactionIDs(ctx context.Context) ([]Transact
 	ctx, span := tracer.Start(ctx, "GetAllTransactionIDs_Repo")
 	defer span.End()
 
-	var TransactionID []TransactionID.TransactionID
+	var transactionID []TransactionID.TransactionID
 
-	err := o.Db.Order("t_id").Find(&TransactionID).Error
+	err := o.Db.Order("t_id").Find(&transactionID).Error
 	if err != nil {
-		return TransactionID, err
+		return transactionID, err
 	}
 
-	return TransactionID, nil
+	return transactionID, nil
 }
 
 func (o TransactionIDRepo) GetOrderByTransactionID(ctx context.Context, transactionID string) (TransactionID.TransactionID, error) {
@@ -42,16 +42,16 @@ func (o TransactionIDRepo) GetOrderByTransactionID(ctx context.Context, transact
 	return transaction, nil
 }
 
-func (o TransactionIDRepo) CreateTransactionID(ctx context.Context, TransactionInfo TransactionID.TransactionID) (TransactionID.TransactionID, error) {
+func (o TransactionIDRepo) CreateTransactionID(ctx context.Context, transactionInfo TransactionID.TransactionID) (TransactionID.TransactionID, error) {
 	ctx, span := tracer.Start(ctx, "CreateTransactionID_Repo")
 	defer span.End()
 
-	err := o.Db.Create(&TransactionInfo).Error
+	err := o.Db.Create(&transactionInfo).Error
 	if err != nil {
-		return TransactionInfo, errors.New("failed to create transaction ID")
+		return transactionInfo, errors.New("failed to create transaction ID")
 	}
 
-	return TransactionInfo, nil
+	return transactionInfo, nil
 }
 
 func (o TransactionIDRepo) DeleteTransactionID(ctx context.Context, transactionID string) error {

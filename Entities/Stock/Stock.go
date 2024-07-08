@@ -18,10 +18,10 @@ func (stock *Stock) ValidateStockID(rawData map[string]interface{}) error {
 		if reflect.TypeOf(sId).Kind() != reflect.String {
 			return errors.New("stock ID Must Be a String")
 		} else {
-			CheckIdString := sId.(string)
-			if CheckIdInt, err := strconv.Atoi(CheckIdString); err != nil {
+			checkIdString := sId.(string)
+			if checkIdInt, err := strconv.Atoi(checkIdString); err != nil {
 				return errors.New("stock ID Must Be a Number")
-			} else if CheckIdInt <= 0 {
+			} else if checkIdInt <= 0 {
 				return errors.New("stock ID Must Be Greater than 0")
 			}
 		}
@@ -37,8 +37,8 @@ func (stock *Stock) ValidateStockQuantity(rawData map[string]interface{}) error 
 		if reflect.TypeOf(sQuantity).Kind() != reflect.Float64 {
 			return errors.New("stock Quantity Must Be a Integer")
 		} else {
-			CheckQuantityInt := sQuantity.(float64)
-			if CheckQuantityInt <= 0 {
+			checkQuantityInt := sQuantity.(float64)
+			if checkQuantityInt <= 0 {
 				return errors.New("stock Quantity Must Be Greater than 0")
 			}
 		}

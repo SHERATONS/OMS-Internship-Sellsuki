@@ -7,6 +7,7 @@ import (
 	"github.com/SHERATONS/OMS-Sellsuki-Internship/Model"
 	"gorm.io/gorm"
 	"log"
+	"time"
 )
 
 type StockRepo struct {
@@ -21,7 +22,6 @@ func (s *StockRepo) GetAllStocks(ctx context.Context) ([]Stock.Stock, error) {
 
 	err := s.Db.Order("CAST(s_id AS INTEGER)").Find(&stocks).Error
 	if err != nil {
-		//span.RecordError(err)
 		return stocks, err
 	}
 
@@ -42,32 +42,36 @@ func (s StockRepo) GetStockByID(ctx context.Context, stockId string) (Stock.Stoc
 	return stock, nil
 }
 
-func (s StockRepo) CreateStock(ctx context.Context, Stock Stock.Stock) (Stock.Stock, error) {
+func (s StockRepo) CreateStock(ctx context.Context, stock Stock.Stock) (Stock.Stock, error) {
 	ctx, span := tracer.Start(ctx, "CreateStock_Repo")
 	defer span.End()
 
-	err := s.Db.Create(&Stock).Error
+	stock.SUpdated = time.Now()
+
+	err := s.Db.Create(&stock).Error
 	if err != nil {
-		return Stock, errors.New("failed to create stock")
+		return stock, errors.New("failed to create stock")
 	}
 
-	return Stock, nil
+	return stock, nil
 }
 
-func (s StockRepo) UpdateStock(ctx context.Context, Stock Stock.Stock, stockId string) (Stock.Stock, error) {
+func (s StockRepo) UpdateStock(ctx context.Context, stock Stock.Stock, stockId string) (Stock.Stock, error) {
 	ctx, span := tracer.Start(ctx, "UpdateStock_Repo")
 	defer span.End()
 
-	if Stock.SQuantity < 0 {
-		return Stock, errors.New("stock quantity is negative")
+	if stock.SQuantity < 0 {
+		return stock, errors.New("stock quantity is negative")
 	}
 
-	err := s.Db.Where("s_id = ?", stockId).Save(&Stock).Error
+	stock.SUpdated = time.Now()
+
+	err := s.Db.Where("s_id = ?", stockId).Save(&stock).Error
 	if err != nil {
-		return Stock, errors.New("failed to update stock")
+		return stock, errors.New("failed to update stock")
 	}
 
-	return Stock, nil
+	return stock, nil
 }
 
 func (s StockRepo) DeleteStock(ctx context.Context, stockId string) error {
