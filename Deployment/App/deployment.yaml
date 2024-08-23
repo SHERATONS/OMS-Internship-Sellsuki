@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ordermanagementv1
+  namespace: orderapp
+  labels:
+    app: ordermanagement
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ordermanagement
+  template:
+    metadata:
+      labels:
+        app: ordermanagement
+    spec:
+      containers:
+        - name: ordermanagementdemo
+          image: benjapholm/oms-internship-sellsuki
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: SERVER_PORT
+              value: "8080"
+            - name: SERVER_ALLOW_ORIGINS
+              value: "*"
+            - name: SERVER_BODY_LIMIT
+              value: "10M"
+            - name: SERVER_TIMEOUT
+              value: "30s"
+            - name: DATABASE_HOST
+              value: pqdb-postgresql.db-orderapp
+            - name: DATABASE_PORT
+              value: "5432"
+            - name: DATABASE_USERNAME
+              value: postgres
+            - name: DATABASE_PASSWORD
+              value: "Ming1234"
+            - name: DATABASE_NAME
+              value: Order_week1
+            - name: DATABASE_SSLMODE
+              value: disable
+            - name: DATABASE_SCHEMA
+              value: public
+            - name: URL_TRACING
+              value: tempo.monitoring:4318
