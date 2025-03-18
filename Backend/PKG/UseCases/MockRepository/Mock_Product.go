@@ -2,7 +2,7 @@ package MockRepository
 
 import (
 	"context"
-	"github.com/SHERATONS/OMS-Sellsuki-Internship/Backend/Entities/Product"
+	"github.com/SHERATONS/OMS-Sellsuki-Internship/Entities/Product"
 	"github.com/stretchr/testify/mock"
 )
 
